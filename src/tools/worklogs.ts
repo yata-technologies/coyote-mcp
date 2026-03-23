@@ -10,6 +10,8 @@ export const worklogTools = [
         user_id:    { type: 'string', description: 'Filter by user ID, or "me" for current user (optional)' },
         task_slug:  { type: 'string', description: 'Filter by task slug, e.g. CHR-T1 (optional)' },
         project_id: { type: 'string', description: 'Filter by project ID (optional)' },
+        sprint_id:  { type: 'string', description: 'Filter by sprint ID (optional)' },
+        date:       { type: 'string', description: 'Filter by exact date YYYY-MM-DD (optional)' },
         date_from:  { type: 'string', description: 'Start date YYYY-MM-DD (optional)' },
         date_to:    { type: 'string', description: 'End date YYYY-MM-DD (optional)' },
       },
@@ -93,6 +95,8 @@ export async function handleWorklog(name: string, args: Record<string, string | 
       query.task_id = task.id
     }
     if (args.project_id) query.project_id = String(args.project_id)
+    if (args.sprint_id)  query.sprint_id  = String(args.sprint_id)
+    if (args.date)       query.date       = String(args.date)
     if (args.date_from)  query.date_from  = String(args.date_from)
     if (args.date_to)    query.date_to    = String(args.date_to)
 
@@ -130,12 +134,12 @@ export async function handleWorklog(name: string, args: Record<string, string | 
 
   if (name === 'coyote_update_worklog') {
     const body: Record<string, unknown> = {}
-    if (args.minutes)     body.minutes     = Number(args.minutes)
-    if (args.date)        body.date        = args.date
-    if (args.start_time)  body.start_time  = args.start_time
-    if (args.end_time)    body.end_time    = args.end_time
-    if (args.note)        body.note        = args.note
-    if (args.activity_id) body.activity_id = args.activity_id
+    if (args.minutes     !== undefined) body.minutes     = Number(args.minutes)
+    if (args.date        !== undefined) body.date        = args.date
+    if (args.start_time  !== undefined) body.start_time  = args.start_time
+    if (args.end_time    !== undefined) body.end_time    = args.end_time
+    if (args.note        !== undefined) body.note        = args.note
+    if (args.activity_id !== undefined) body.activity_id = args.activity_id
 
     const wl = await client.put<Worklog>(`/api/worklogs/${args.slug}`, body)
     return `✅ Worklog updated: ${wl.slug ?? wl.id} — ${wl.minutes} min on ${wl.date}`

@@ -136,14 +136,14 @@ export async function handleTask(name: string, args: Record<string, string | num
   if (name === 'coyote_update_task') {
     const ownerId    = await resolveMe(client, args.owner_id as string | undefined)
     const body: Record<string, unknown> = {}
-    if (args.title)       body.title       = args.title
-    if (ownerId)          body.owner_id    = ownerId
-    if (args.reviewer_id) body.reviewer_id = args.reviewer_id
-    if (args.category_id) body.category_id = args.category_id
-    if (args.phase_id)    body.phase_id    = args.phase_id
-    if (args.status)      body.status      = args.status
-    if (args.priority)    body.priority    = args.priority
-    if (args.weight)      body.weight      = Number(args.weight)
+    if (args.title       !== undefined) body.title       = args.title
+    if (ownerId          !== undefined) body.owner_id    = ownerId ?? null
+    if (args.reviewer_id !== undefined) body.reviewer_id = args.reviewer_id
+    if (args.category_id !== undefined) body.category_id = args.category_id
+    if (args.phase_id    !== undefined) body.phase_id    = args.phase_id
+    if (args.status      !== undefined) body.status      = args.status
+    if (args.priority    !== undefined) body.priority    = args.priority
+    if (args.weight      !== undefined) body.weight      = Number(args.weight)
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
     return `✅ Task updated: ${task.slug ?? task.id} — ${task.title} (status: ${task.status})`

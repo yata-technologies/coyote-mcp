@@ -15,6 +15,7 @@ import { worklogTools, handleWorklog } from './tools/worklogs.js'
 import { projectTools, handleProject } from './tools/projects.js'
 import { sprintTools, handleSprint } from './tools/sprints.js'
 import { configTools, handleConfig } from './tools/config.js'
+import { memberTools, handleMember } from './tools/members.js'
 import { writeToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -113,7 +114,7 @@ function sleep(ms: number): Promise<void> {
 
 // --- MCP Server ---
 
-const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools]
+const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools, ...memberTools]
 
 const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_get_me'])
 const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
@@ -126,12 +127,13 @@ const CONFIG_TOOLS  = new Set([
   'coyote_list_phases', 'coyote_create_phase', 'coyote_update_phase', 'coyote_delete_phase',
   'coyote_list_activities', 'coyote_create_activity', 'coyote_update_activity', 'coyote_delete_activity',
 ])
+const MEMBER_TOOLS  = new Set(['coyote_add_member', 'coyote_update_member_role', 'coyote_remove_member'])
 
 async function startServer(): Promise<void> {
   tryAutoUpdate()
 
   const server = new Server(
-    { name: 'coyote', version: '1.2.0' },
+    { name: 'coyote', version: '1.3.0' },
     { capabilities: { tools: {} } }
   )
 
@@ -157,6 +159,8 @@ async function startServer(): Promise<void> {
         text = await handleSprint(name, a as Record<string, string>)
       } else if (CONFIG_TOOLS.has(name)) {
         text = await handleConfig(name, a)
+      } else if (MEMBER_TOOLS.has(name)) {
+        text = await handleMember(name, a as Record<string, string>)
       } else {
         throw new Error(`Unknown tool: ${name}`)
       }

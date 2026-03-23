@@ -117,12 +117,12 @@ export const configTools = [
       properties: {
         phase_id: { type: 'string', description: 'Phase ID' },
         name:     { type: 'string', description: 'Activity name' },
-        phase:    { type: 'string', description: 'Phase label (optional)' },
-        code:     { type: 'string', description: 'Activity code (optional)' },
-        role:     { type: 'string', description: 'Role (optional)' },
-        type:     { type: 'string', description: 'Activity type (optional)' },
+        phase:    { type: 'string', description: 'Phase label (e.g. コーディング)' },
+        code:     { type: 'string', description: 'Activity code (e.g. CD01)' },
+        role:     { type: 'string', description: 'Role (e.g. Dev, PM, BrSE)' },
+        type:     { type: 'string', description: 'Activity type (e.g. development, review)' },
       },
-      required: ['phase_id', 'name'],
+      required: ['phase_id', 'name', 'phase', 'code', 'role', 'type'],
     },
   },
   {
@@ -220,7 +220,7 @@ export async function handleConfig(name: string, args: Record<string, string | n
     const items = await client.get<Activity[]>('/api/activities', query)
     if (items.length === 0) return 'No activities found.'
     return items.map(a =>
-      `[${a.id}] ${a.name}${a.code ? ` (${a.code})` : ''}${a.type ? ` — ${a.type}` : ''}`
+      `[${a.id}] ${a.name}${a.code ? ` (${a.code})` : ''}${a.role ? ` [${a.role}]` : ''}${a.phase ? ` — ${a.phase}` : ''}${a.type ? ` (${a.type})` : ''}`
     ).join('\n')
   }
 
@@ -236,12 +236,12 @@ export async function handleConfig(name: string, args: Record<string, string | n
 
   if (name === 'coyote_update_activity') {
     const body: Record<string, unknown> = {}
-    if (args.name)     body.name     = args.name
-    if (args.phase)    body.phase    = args.phase
-    if (args.code)     body.code     = args.code
-    if (args.role)     body.role     = args.role
-    if (args.type)     body.type     = args.type
-    if (args.phase_id) body.phase_id = args.phase_id
+    if (args.name     !== undefined) body.name     = args.name
+    if (args.phase    !== undefined) body.phase    = args.phase
+    if (args.code     !== undefined) body.code     = args.code
+    if (args.role     !== undefined) body.role     = args.role
+    if (args.type     !== undefined) body.type     = args.type
+    if (args.phase_id !== undefined) body.phase_id = args.phase_id
     const item = await client.put<Activity>(`/api/activities/${args.id}`, body)
     return `✅ Activity updated: [${item.id}] ${item.name}`
   }
