@@ -34,7 +34,8 @@ fi
 echo "→ Updated ~/.claude/mcp.json"
 
 echo ""
-echo "✅ インストール完了！次のコマンドで認証してください:"
-echo "   node $COYOTE_DIR/mcp/dist/index.js login"
+echo "✅ インストール完了！認証を開始します..."
 echo ""
-echo "認証後、Claude Code を再起動してください。"
+node "$COYOTE_DIR/mcp/dist/index.js" login
+echo ""
+echo "Claude Code を再起動してください。"
