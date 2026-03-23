@@ -12,6 +12,7 @@ import { authTools, handleAuth } from './tools/auth.js'
 import { taskTools, handleTask } from './tools/tasks.js'
 import { issueTools, handleIssue } from './tools/issues.js'
 import { worklogTools, handleWorklog } from './tools/worklogs.js'
+import { projectTools, handleProject } from './tools/projects.js'
 import { writeToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -98,7 +99,6 @@ async function runLogin(): Promise<void> {
       console.log('\n\n❌ Code expired. Please run login again.')
       process.exit(1)
     }
-    // authorization_pending — keep polling
   }
 
   console.log('\n\n❌ Login timed out. Please run login again.')
@@ -111,13 +111,19 @@ function sleep(ms: number): Promise<void> {
 
 // --- MCP Server ---
 
-const ALL_TOOLS = [...authTools, ...taskTools, ...issueTools, ...worklogTools]
+const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools]
+
+const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_get_me'])
+const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue'])
+const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task'])
+const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog'])
+const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_sprints', 'coyote_list_members'])
 
 async function startServer(): Promise<void> {
   tryAutoUpdate()
 
   const server = new Server(
-    { name: 'coyote', version: '1.0.0' },
+    { name: 'coyote', version: '1.1.0' },
     { capabilities: { tools: {} } }
   )
 
@@ -129,14 +135,16 @@ async function startServer(): Promise<void> {
 
     try {
       let text: string
-      if (name === 'coyote_login' || name === 'coyote_whoami') {
+      if (AUTH_TOOLS.has(name)) {
         text = await handleAuth(name)
-      } else if (name === 'list_my_tasks' || name === 'get_task') {
-        text = await handleTask(name, a as Record<string, string>)
-      } else if (name === 'list_issues' || name === 'get_issue') {
-        text = await handleIssue(name, a as Record<string, string>)
-      } else if (name === 'create_worklog' || name === 'list_my_worklogs') {
+      } else if (ISSUE_TOOLS.has(name)) {
+        text = await handleIssue(name, a)
+      } else if (TASK_TOOLS.has(name)) {
+        text = await handleTask(name, a)
+      } else if (WORKLOG_TOOLS.has(name)) {
         text = await handleWorklog(name, a)
+      } else if (PROJECT_TOOLS.has(name)) {
+        text = await handleProject(name, a as Record<string, string>)
       } else {
         throw new Error(`Unknown tool: ${name}`)
       }

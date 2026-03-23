@@ -11,14 +11,14 @@ export const authTools = [
     inputSchema: { type: 'object' as const, properties: {} },
   },
   {
-    name: 'coyote_whoami',
+    name: 'coyote_get_me',
     description: 'Return the currently authenticated Coyote user.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
 ]
 
 export async function handleAuth(name: string): Promise<string> {
-  if (name === 'coyote_whoami') {
+  if (name === 'coyote_get_me') {
     const client = new CoyoteClient()
     const user = await client.get<{ name: string; email: string; system_role: string }>('/api/me')
     return `Authenticated as ${user.name} (${user.email}) — role: ${user.system_role}`
@@ -34,7 +34,6 @@ export async function handleAuth(name: string): Promise<string> {
 async function runDeviceAuth(): Promise<string> {
   const label = `Claude Code on ${hostname()} (${platform()})`
 
-  // Step 1: Request device code
   const res = await fetch(`${BASE_URL}/auth/device/code`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -45,12 +44,8 @@ async function runDeviceAuth(): Promise<string> {
   const { device_code, user_code, verification_uri, interval } =
     await res.json() as { device_code: string; user_code: string; verification_uri: string; interval: number }
 
-  // Step 2: Poll for approval
   const deadline = Date.now() + 15 * 60 * 1000
   const pollMs = (interval ?? 5) * 1000
-
-  // Return the instruction first — Claude will display this while the tool runs
-  let message = `Open ${verification_uri} and enter: ${user_code}\n\nWaiting for authorization...`
 
   while (Date.now() < deadline) {
     await sleep(pollMs)
@@ -63,13 +58,11 @@ async function runDeviceAuth(): Promise<string> {
 
     if (data.access_token) {
       writeToken(data.access_token)
-      message = `Open ${verification_uri} and enter: ${user_code}\n\n✅ Authenticated as ${label}. Token saved to ~/.coyote/token.`
-      return message
+      return `Open ${verification_uri} and enter: ${user_code}\n\n✅ Authenticated as ${label}. Token saved to ~/.coyote/token.`
     }
     if (data.error === 'expired_token') {
       throw new Error('Authorization code expired. Please run coyote_login again.')
     }
-    // authorization_pending — keep polling
   }
 
   throw new Error('Login timed out. Please run coyote_login again.')

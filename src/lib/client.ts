@@ -36,4 +36,14 @@ export class CoyoteClient {
     if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`)
     return res.json() as Promise<T>
   }
+
+  async put<T>(path: string, body: unknown): Promise<T> {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: 'PUT',
+      headers: this.headers(),
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`)
+    return res.json() as Promise<T>
+  }
 }
