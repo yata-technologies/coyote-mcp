@@ -159,7 +159,7 @@ type Category = { id: string; name: string; sort_order: number; is_active: numbe
 type Phase     = { id: string; name: string; sort_order: number; is_active: number }
 type Activity  = { id: string; name: string; phase: string | null; code: string | null; role: string | null; type: string | null; phase_id: string | null }
 
-export async function handleConfig(name: string, args: Record<string, string | number>): Promise<string> {
+export async function handleConfig(name: string, args: Record<string, string | number | null>): Promise<string> {
   const client = new CoyoteClient()
 
   // Categories

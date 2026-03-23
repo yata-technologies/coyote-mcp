@@ -53,10 +53,10 @@ export const taskTools = [
       properties: {
         slug:        { type: 'string', description: 'Task slug, e.g. CHR-T1' },
         title:       { type: 'string', description: 'Task title (optional)' },
-        owner_id:    { type: 'string', description: 'Owner user ID, or "me" (optional)' },
-        reviewer_id: { type: 'string', description: 'Reviewer user ID (optional)' },
-        category_id: { type: 'string', description: 'Category ID (optional)' },
-        phase_id:    { type: 'string', description: 'Phase ID (optional)' },
+        owner_id:    { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional)' },
+        reviewer_id: { type: ['string', 'null'], description: 'Reviewer user ID; pass null to clear (optional)' },
+        category_id: { type: ['string', 'null'], description: 'Category ID; pass null to clear (optional)' },
+        phase_id:    { type: ['string', 'null'], description: 'Phase ID; pass null to clear (optional)' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         weight:      { type: 'number', description: 'Effort weight (optional)' },
@@ -90,7 +90,7 @@ async function resolveMe(client: CoyoteClient, value: string | undefined): Promi
   return value
 }
 
-export async function handleTask(name: string, args: Record<string, string | number>): Promise<string> {
+export async function handleTask(name: string, args: Record<string, string | number | null>): Promise<string> {
   const client = new CoyoteClient()
 
   if (name === 'coyote_list_tasks') {

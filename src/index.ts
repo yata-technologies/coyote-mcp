@@ -141,7 +141,7 @@ async function startServer(): Promise<void> {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args = {} } = request.params
-    const a = args as Record<string, string | number>
+    const a = args as Record<string, string | number | null>
 
     try {
       let text: string

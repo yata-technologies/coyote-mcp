@@ -60,7 +60,7 @@ export const issueTools = [
         title_en:    { type: 'string', description: 'English title (optional)' },
         category:    { type: 'string', description: 'Category name (optional)' },
         vendor:      { type: 'string', description: 'Vendor name (optional)' },
-        assignee_id: { type: 'string', description: 'Assignee user ID, or "me"; pass null to unassign (optional)' },
+        assignee_id: { type: ['string', 'null'], description: 'Assignee user ID, or "me"; pass null to unassign (optional)' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
@@ -96,7 +96,7 @@ async function resolveMe(client: CoyoteClient, value: string | undefined): Promi
   return value
 }
 
-export async function handleIssue(name: string, args: Record<string, string | number>): Promise<string> {
+export async function handleIssue(name: string, args: Record<string, string | number | null>): Promise<string> {
   const client = new CoyoteClient()
 
   if (name === 'coyote_list_issues') {

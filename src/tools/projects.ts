@@ -35,7 +35,7 @@ export async function handleProject(name: string, args: Record<string, string>):
     const members = await client.get<Member[]>('/api/project-members', { project_id: args.project_id })
     if (members.length === 0) return 'No members found.'
     return members.map(m =>
-      `[${m.role}] ${m.user_name} (${m.user_email})${m.vendor_name ? ` — ${m.vendor_name}` : ''} (id: ${m.user_id})`
+      `[${m.role}] ${m.user_name} (${m.user_email})${m.vendor_name ? ` — ${m.vendor_name}` : ''} (member_id: ${m.id})`
     ).join('\n')
   }
 

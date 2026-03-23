@@ -53,7 +53,7 @@ export async function handleMember(name: string, args: Record<string, string>): 
       user_id:    args.user_id,
       role:       args.role,
     })
-    return `✅ Member added: ${member.user_name} (${member.user_email}) as ${member.role}${member.vendor_name ? ` — ${member.vendor_name}` : ''}`
+    return `✅ Member added: ${member.user_name} (${member.user_email}) as ${member.role}${member.vendor_name ? ` — ${member.vendor_name}` : ''} (member_id: ${member.id})`
   }
 
   if (name === 'coyote_update_member_role') {

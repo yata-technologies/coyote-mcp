@@ -79,7 +79,7 @@ type Worklog = {
   minutes: number; start_time: string | null; note: string | null
 }
 
-export async function handleWorklog(name: string, args: Record<string, string | number>): Promise<string> {
+export async function handleWorklog(name: string, args: Record<string, string | number | null>): Promise<string> {
   const client = new CoyoteClient()
 
   if (name === 'coyote_list_worklogs') {
