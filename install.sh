@@ -2,9 +2,9 @@
 set -e
 COYOTE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-echo "🐺 Coyote MCP インストール"
+echo "🐺 Coyote MCP Installer"
 
-# ビルド
+# Build
 echo "→ Building..."
 cd "$COYOTE_DIR/mcp" && npm install --silent && npm run build --silent
 
@@ -15,7 +15,7 @@ if [ ! -f ~/.coyote/config.json ]; then
   echo "→ Created ~/.coyote/config.json (auto_update: true)"
 fi
 
-# ~/.claude/mcp.json にエントリ追加
+# Add coyote entry to ~/.claude/mcp.json
 MCP_CONFIG=~/.claude/mcp.json
 mkdir -p ~/.claude
 if [ ! -f "$MCP_CONFIG" ]; then
@@ -34,8 +34,8 @@ fi
 echo "→ Updated ~/.claude/mcp.json"
 
 echo ""
-echo "✅ インストール完了！認証を開始します..."
+echo "✅ Installation complete. Starting authentication..."
 echo ""
 node "$COYOTE_DIR/mcp/dist/index.js" login
 echo ""
-echo "Claude Code を再起動してください。"
+echo "Please restart Claude Code to activate the Coyote MCP server."
