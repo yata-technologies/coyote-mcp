@@ -65,6 +65,17 @@ export const issueTools = [
       required: ['slug'],
     },
   },
+  {
+    name: 'coyote_delete_issue',
+    description: 'Delete an issue by slug. Requires project admin or manager role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        slug: { type: 'string', description: 'Issue slug, e.g. CHR-5' },
+      },
+      required: ['slug'],
+    },
+  },
 ]
 
 type Issue = {
@@ -138,6 +149,11 @@ export async function handleIssue(name: string, args: Record<string, string | nu
 
     const issue = await client.put<Issue>(`/api/issues/${args.slug}`, body)
     return `✅ Issue updated: ${issue.slug ?? issue.id} — ${issue.title} (status: ${issue.status})`
+  }
+
+  if (name === 'coyote_delete_issue') {
+    await client.delete(`/api/issues/${args.slug}`)
+    return `✅ Issue deleted: ${args.slug}`
   }
 
   throw new Error(`Unknown issue tool: ${name}`)

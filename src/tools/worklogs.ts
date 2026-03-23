@@ -59,6 +59,17 @@ export const worklogTools = [
       required: ['slug'],
     },
   },
+  {
+    name: 'coyote_delete_worklog',
+    description: 'Delete a worklog by slug. Requires project admin or manager role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        slug: { type: 'string', description: 'Worklog slug, e.g. CHR-W3' },
+      },
+      required: ['slug'],
+    },
+  },
 ]
 
 type Worklog = {
@@ -128,6 +139,11 @@ export async function handleWorklog(name: string, args: Record<string, string | 
 
     const wl = await client.put<Worklog>(`/api/worklogs/${args.slug}`, body)
     return `✅ Worklog updated: ${wl.slug ?? wl.id} — ${wl.minutes} min on ${wl.date}`
+  }
+
+  if (name === 'coyote_delete_worklog') {
+    await client.delete(`/api/worklogs/${args.slug}`)
+    return `✅ Worklog deleted: ${args.slug}`
   }
 
   throw new Error(`Unknown worklog tool: ${name}`)

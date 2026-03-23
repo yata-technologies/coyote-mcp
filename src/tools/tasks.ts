@@ -64,6 +64,17 @@ export const taskTools = [
       required: ['slug'],
     },
   },
+  {
+    name: 'coyote_delete_task',
+    description: 'Delete a task by slug. Requires project admin or manager role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        slug: { type: 'string', description: 'Task slug, e.g. CHR-T1' },
+      },
+      required: ['slug'],
+    },
+  },
 ]
 
 type Task = {
@@ -136,6 +147,11 @@ export async function handleTask(name: string, args: Record<string, string | num
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
     return `✅ Task updated: ${task.slug ?? task.id} — ${task.title} (status: ${task.status})`
+  }
+
+  if (name === 'coyote_delete_task') {
+    await client.delete(`/api/tasks/${args.slug}`)
+    return `✅ Task deleted: ${args.slug}`
   }
 
   throw new Error(`Unknown task tool: ${name}`)

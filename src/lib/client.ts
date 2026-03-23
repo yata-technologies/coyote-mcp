@@ -46,4 +46,12 @@ export class CoyoteClient {
     if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`)
     return res.json() as Promise<T>
   }
+
+  async delete(path: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: 'DELETE',
+      headers: this.headers(),
+    })
+    if (!res.ok) throw new Error(`API error ${res.status}: ${await res.text()}`)
+  }
 }

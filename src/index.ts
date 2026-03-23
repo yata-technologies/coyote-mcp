@@ -13,6 +13,8 @@ import { taskTools, handleTask } from './tools/tasks.js'
 import { issueTools, handleIssue } from './tools/issues.js'
 import { worklogTools, handleWorklog } from './tools/worklogs.js'
 import { projectTools, handleProject } from './tools/projects.js'
+import { sprintTools, handleSprint } from './tools/sprints.js'
+import { configTools, handleConfig } from './tools/config.js'
 import { writeToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -111,19 +113,25 @@ function sleep(ms: number): Promise<void> {
 
 // --- MCP Server ---
 
-const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools]
+const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools]
 
 const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_get_me'])
-const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue'])
-const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task'])
-const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog'])
-const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_sprints', 'coyote_list_members'])
+const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
+const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task', 'coyote_delete_task'])
+const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
+const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_members'])
+const SPRINT_TOOLS  = new Set(['coyote_list_sprints', 'coyote_create_sprint', 'coyote_update_sprint', 'coyote_delete_sprint'])
+const CONFIG_TOOLS  = new Set([
+  'coyote_list_categories', 'coyote_create_category', 'coyote_update_category', 'coyote_delete_category',
+  'coyote_list_phases', 'coyote_create_phase', 'coyote_update_phase', 'coyote_delete_phase',
+  'coyote_list_activities', 'coyote_create_activity', 'coyote_update_activity', 'coyote_delete_activity',
+])
 
 async function startServer(): Promise<void> {
   tryAutoUpdate()
 
   const server = new Server(
-    { name: 'coyote', version: '1.1.0' },
+    { name: 'coyote', version: '1.2.0' },
     { capabilities: { tools: {} } }
   )
 
@@ -145,6 +153,10 @@ async function startServer(): Promise<void> {
         text = await handleWorklog(name, a)
       } else if (PROJECT_TOOLS.has(name)) {
         text = await handleProject(name, a as Record<string, string>)
+      } else if (SPRINT_TOOLS.has(name)) {
+        text = await handleSprint(name, a as Record<string, string>)
+      } else if (CONFIG_TOOLS.has(name)) {
+        text = await handleConfig(name, a)
       } else {
         throw new Error(`Unknown tool: ${name}`)
       }
