@@ -19,7 +19,7 @@ import { memberTools, handleMember } from './tools/members.js'
 import { writeToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const REPO_DIR = join(__dirname, '..', '..')
+const REPO_DIR = join(__dirname, '..')
 
 // --- Auto-update ---
 
@@ -40,13 +40,13 @@ function tryAutoUpdate(): void {
     if (behind === '0') return
 
     if (!autoUpdate) {
-      process.stderr.write(`[coyote-mcp] Update available. Run: git -C ${REPO_DIR} pull && npm run build --prefix ${join(REPO_DIR, 'mcp')}\n`)
+      process.stderr.write(`[coyote-mcp] Update available. Run: git -C ${REPO_DIR} pull && npm run build --prefix ${REPO_DIR}\n`)
       return
     }
 
     process.stderr.write('[coyote-mcp] Updating to latest version...\n')
     execSync(`git -C ${REPO_DIR} pull --ff-only`, { stdio: 'ignore' })
-    execSync(`npm run build --prefix ${join(REPO_DIR, 'mcp')}`, { stdio: 'ignore' })
+    execSync(`npm run build --prefix ${REPO_DIR}`, { stdio: 'ignore' })
     process.stderr.write('[coyote-mcp] Updated. Restarting...\n')
 
     const result = spawnSync(process.execPath, process.argv.slice(1), { stdio: 'inherit' })
