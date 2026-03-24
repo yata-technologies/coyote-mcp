@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
-COYOTE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+COYOTE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "🐺 Coyote MCP Installer"
 
 # Build
 echo "→ Building..."
-cd "$COYOTE_DIR/mcp" && npm install --silent && npm run build --silent
+cd "$COYOTE_DIR" && npm install --silent && npm run build --silent
 
 # ~/.coyote/config.json
 mkdir -p ~/.coyote
@@ -25,7 +25,7 @@ if ! grep -q '"coyote"' "$MCP_CONFIG"; then
     const fs = require('fs');
     const cfg = JSON.parse(fs.readFileSync('$MCP_CONFIG', 'utf8'));
     cfg.mcpServers = cfg.mcpServers || {};
-    cfg.mcpServers.coyote = { command: 'node', args: ['$COYOTE_DIR/mcp/dist/index.js'] };
+    cfg.mcpServers.coyote = { command: 'node', args: ['$COYOTE_DIR/dist/index.js'] };
     fs.writeFileSync('$MCP_CONFIG', JSON.stringify(cfg, null, 2));
   "
 fi
@@ -34,6 +34,6 @@ echo "→ Updated ~/.claude.json"
 echo ""
 echo "✅ Installation complete. Starting authentication..."
 echo ""
-node "$COYOTE_DIR/mcp/dist/index.js" login
+node "$COYOTE_DIR/dist/index.js" login
 echo ""
 echo "Please restart Claude Code to activate the Coyote MCP server."
