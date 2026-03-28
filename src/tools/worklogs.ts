@@ -76,7 +76,7 @@ export const worklogTools = [
 
 type Worklog = {
   id: string; slug: string | null; task_id: string; date: string
-  minutes: number; start_time: string | null; note: string | null
+  seconds: number; start_time: string | null; description: string | null
 }
 
 export async function handleWorklog(name: string, args: Record<string, string | number | null>): Promise<string> {
@@ -103,11 +103,13 @@ export async function handleWorklog(name: string, args: Record<string, string | 
     const worklogs = await client.get<Worklog[]>('/api/worklogs', query)
     if (worklogs.length === 0) return 'No worklogs found.'
 
-    const total = worklogs.reduce((s, w) => s + w.minutes, 0)
-    const lines = worklogs.map(w =>
-      `[${w.slug ?? w.id}] ${w.date} — ${w.minutes} min${w.note ? `: ${w.note}` : ''}`
-    )
-    lines.push(`\nTotal: ${total} min (${(total / 60).toFixed(1)} h)`)
+    const totalSecs = worklogs.reduce((s, w) => s + w.seconds, 0)
+    const lines = worklogs.map(w => {
+      const mins = Math.round(w.seconds / 60)
+      return `[${w.slug ?? w.id}] ${w.date} — ${mins} min${w.description ? `: ${w.description}` : ''}`
+    })
+    const totalMins = Math.round(totalSecs / 60)
+    lines.push(`\nTotal: ${totalMins} min (${(totalMins / 60).toFixed(1)} h)`)
     return lines.join('\n')
   }
 
@@ -121,28 +123,30 @@ export async function handleWorklog(name: string, args: Record<string, string | 
     const today = new Date().toISOString().slice(0, 10)
     const body: Record<string, unknown> = {
       task_id: task.id,
-      minutes: Number(args.minutes),
+      seconds: Number(args.minutes) * 60,
       date: args.date ?? today,
     }
     if (args.start_time)  body.start_time  = args.start_time
-    if (args.note)        body.note        = args.note
+    if (args.note)        body.description = args.note
     if (args.activity_id) body.activity_id = args.activity_id
 
     const wl = await client.post<Worklog>('/api/worklogs', body)
-    return `✅ Worklog recorded: ${wl.slug ?? wl.id} — ${wl.minutes} min on ${wl.date} (task: ${task.title})`
+    const mins = Math.round((wl.seconds as unknown as number) / 60)
+    return `✅ Worklog recorded: ${wl.slug ?? wl.id} — ${mins} min on ${wl.date} (task: ${task.title})`
   }
 
   if (name === 'coyote_update_worklog') {
     const body: Record<string, unknown> = {}
-    if (args.minutes     !== undefined) body.minutes     = Number(args.minutes)
+    if (args.minutes     !== undefined) body.seconds     = Number(args.minutes) * 60
     if (args.date        !== undefined) body.date        = args.date
     if (args.start_time  !== undefined) body.start_time  = args.start_time
     if (args.end_time    !== undefined) body.end_time    = args.end_time
-    if (args.note        !== undefined) body.note        = args.note
+    if (args.note        !== undefined) body.description = args.note
     if (args.activity_id !== undefined) body.activity_id = args.activity_id
 
     const wl = await client.put<Worklog>(`/api/worklogs/${args.slug}`, body)
-    return `✅ Worklog updated: ${wl.slug ?? wl.id} — ${wl.minutes} min on ${wl.date}`
+    const mins = Math.round(wl.seconds / 60)
+    return `✅ Worklog updated: ${wl.slug ?? wl.id} — ${mins} min on ${wl.date}`
   }
 
   if (name === 'coyote_delete_worklog') {

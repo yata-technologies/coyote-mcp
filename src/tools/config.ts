@@ -118,11 +118,10 @@ export const configTools = [
         phase_id: { type: 'string', description: 'Phase ID' },
         name:     { type: 'string', description: 'Activity name' },
         phase:    { type: 'string', description: 'Phase label (e.g. コーディング)' },
-        code:     { type: 'string', description: 'Activity code (e.g. CD01)' },
-        role:     { type: 'string', description: 'Role (e.g. Dev, PM, BrSE)' },
-        type:     { type: 'string', description: 'Activity type (e.g. development, review)' },
+        role:     { type: 'string', description: 'Role (e.g. Dev, PM, BrSE) (optional)' },
+        type:     { type: 'string', description: 'Activity type (e.g. development, review) (optional)' },
       },
-      required: ['phase_id', 'name', 'phase', 'code', 'role', 'type'],
+      required: ['phase_id', 'name', 'phase'],
     },
   },
   {
@@ -134,7 +133,6 @@ export const configTools = [
         id:       { type: 'string', description: 'Activity ID' },
         name:     { type: 'string', description: 'Activity name (optional)' },
         phase:    { type: 'string', description: 'Phase label (optional)' },
-        code:     { type: 'string', description: 'Activity code (optional)' },
         role:     { type: 'string', description: 'Role (optional)' },
         type:     { type: 'string', description: 'Activity type (optional)' },
         phase_id: { type: 'string', description: 'Phase ID (optional)' },
@@ -157,7 +155,7 @@ export const configTools = [
 
 type Category = { id: string; name: string; sort_order: number; is_active: number }
 type Phase     = { id: string; name: string; sort_order: number; is_active: number }
-type Activity  = { id: string; name: string; phase: string | null; code: string | null; role: string | null; type: string | null; phase_id: string | null }
+type Activity  = { id: string; name: string; phase: string | null; role: string | null; type: string | null; phase_id: string | null }
 
 export async function handleConfig(name: string, args: Record<string, string | number | null>): Promise<string> {
   const client = new CoyoteClient()
@@ -220,14 +218,13 @@ export async function handleConfig(name: string, args: Record<string, string | n
     const items = await client.get<Activity[]>('/api/activities', query)
     if (items.length === 0) return 'No activities found.'
     return items.map(a =>
-      `[${a.id}] ${a.name}${a.code ? ` (${a.code})` : ''}${a.role ? ` [${a.role}]` : ''}${a.phase ? ` — ${a.phase}` : ''}${a.type ? ` (${a.type})` : ''}`
+      `[${a.id}] ${a.name}${a.role ? ` [${a.role}]` : ''}${a.phase ? ` — ${a.phase}` : ''}${a.type ? ` (${a.type})` : ''}`
     ).join('\n')
   }
 
   if (name === 'coyote_create_activity') {
     const body: Record<string, unknown> = { phase_id: args.phase_id, name: args.name }
     if (args.phase) body.phase = args.phase
-    if (args.code)  body.code  = args.code
     if (args.role)  body.role  = args.role
     if (args.type)  body.type  = args.type
     const item = await client.post<Activity>('/api/activities', body)
@@ -238,7 +235,6 @@ export async function handleConfig(name: string, args: Record<string, string | n
     const body: Record<string, unknown> = {}
     if (args.name     !== undefined) body.name     = args.name
     if (args.phase    !== undefined) body.phase    = args.phase
-    if (args.code     !== undefined) body.code     = args.code
     if (args.role     !== undefined) body.role     = args.role
     if (args.type     !== undefined) body.type     = args.type
     if (args.phase_id !== undefined) body.phase_id = args.phase_id
