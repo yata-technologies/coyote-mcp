@@ -133,7 +133,7 @@ async function startServer(): Promise<void> {
   tryAutoUpdate()
 
   const server = new Server(
-    { name: 'coyote', version: '1.5.1' },
+    { name: 'coyote', version: '1.5.2' },
     { capabilities: { tools: {} } }
   )
 
