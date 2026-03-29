@@ -284,7 +284,7 @@ function sleep(ms: number): Promise<void> {
 
 const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools, ...memberTools]
 
-const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_get_me'])
+const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_login_complete', 'coyote_get_me'])
 const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
 const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task', 'coyote_delete_task'])
 const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
