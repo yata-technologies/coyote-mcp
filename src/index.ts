@@ -27,9 +27,12 @@ const BUILD_PENDING_FILE = join(homedir(), '.coyote', 'build-pending')
 type GitErrorKind = 'auth' | 'network' | 'timeout' | 'not_found' | 'diverged' | 'unknown'
 
 function classifyGitError(err: unknown): GitErrorKind {
+  // Spawn-level ENOENT (shell: false) or exit 127 (shell: true, command not found)
   if (err instanceof Error && (err as NodeJS.ErrnoException).code === 'ENOENT') return 'not_found'
+  if (err instanceof Error && (err as { status?: number }).status === 127) return 'not_found'
   if (err instanceof Error && ((err as { killed?: boolean }).killed === true || (err as { signal?: string }).signal != null)) return 'timeout'
   const stderr = err instanceof Error ? (err as { stderr?: Buffer }).stderr?.toString() ?? '' : ''
+  if (/not found|no such file/i.test(stderr) && /git/i.test(stderr)) return 'not_found'
   if (/Authentication failed|Permission denied|could not read Username|Invalid username/i.test(stderr)) return 'auth'
   if (/Could not resolve host|Connection refused|Network is unreachable/i.test(stderr)) return 'network'
   if (/not possible to fast.forward|diverged/i.test(stderr)) return 'diverged'
@@ -144,7 +147,7 @@ function tryAutoUpdate(): void {
 
   // Step 3: pull
   try {
-    execSync(`git -C "${REPO_DIR}" pull --ff-only`, { stdio: 'pipe', timeout: 15000 })
+    execSync(`git -C "${REPO_DIR}" pull --ff-only origin main`, { stdio: 'pipe', timeout: 15000 })
   } catch (err) {
     const kind = classifyGitError(err)
     if (kind === 'auth') {
