@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
-const output = `coyote-v${version}.mcpb`
+const output = join(ROOT, `coyote-v${version}.mcpb`)
 
 // Sync version in manifest.json from package.json
 const manifestPath = join(ROOT, 'manifest.json')
@@ -22,15 +22,13 @@ console.log('Building TypeScript...')
 execSync('npm run build', { cwd: ROOT, stdio: 'inherit' })
 
 // Remove previous output if it exists
-try { rmSync(join(ROOT, output)) } catch { /* not present */ }
+try { rmSync(output) } catch { /* not present */ }
 
 console.log(`Packaging ${output}...`)
-execSync(
-  `zip -r "${output}" manifest.json dist/ node_modules/`,
-  { cwd: ROOT, stdio: 'inherit' }
-)
+const mcpb = join(ROOT, 'node_modules', '.bin', 'mcpb')
+execSync(`"${mcpb}" pack "${ROOT}" "${output}"`, { cwd: ROOT, stdio: 'inherit' })
 
-console.log(`\nDone: ${output} (${getSize(join(ROOT, output))})`)
+console.log(`\nDone: coyote-v${version}.mcpb (${getSize(output)})`)
 
 function getSize(file) {
   try {

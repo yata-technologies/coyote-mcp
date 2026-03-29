@@ -1,55 +1,21 @@
 {
-  "manifest_version": 1,
+  "manifest_version": "0.2",
   "name": "coyote",
   "version": "1.5.4",
-  "display_name": "Coyote",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
+  "author": {
+    "name": "YATA Technologies"
+  },
   "server": {
     "type": "node",
-    "entry_point": "dist/index.js"
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/index.js"
+      ],
+      "env": {}
+    }
   },
-  "tools": [
-    { "name": "coyote_login" },
-    { "name": "coyote_get_me" },
-    { "name": "coyote_list_projects" },
-    { "name": "coyote_list_issues" },
-    { "name": "coyote_get_issue" },
-    { "name": "coyote_create_issue" },
-    { "name": "coyote_update_issue" },
-    { "name": "coyote_delete_issue" },
-    { "name": "coyote_list_tasks" },
-    { "name": "coyote_get_task" },
-    { "name": "coyote_create_task" },
-    { "name": "coyote_update_task" },
-    { "name": "coyote_delete_task" },
-    { "name": "coyote_list_worklogs" },
-    { "name": "coyote_get_worklog" },
-    { "name": "coyote_create_worklog" },
-    { "name": "coyote_update_worklog" },
-    { "name": "coyote_delete_worklog" },
-    { "name": "coyote_list_sprints" },
-    { "name": "coyote_create_sprint" },
-    { "name": "coyote_update_sprint" },
-    { "name": "coyote_delete_sprint" },
-    { "name": "coyote_list_members" },
-    { "name": "coyote_add_member" },
-    { "name": "coyote_update_member_role" },
-    { "name": "coyote_remove_member" },
-    { "name": "coyote_list_categories" },
-    { "name": "coyote_create_category" },
-    { "name": "coyote_update_category" },
-    { "name": "coyote_delete_category" },
-    { "name": "coyote_list_phases" },
-    { "name": "coyote_create_phase" },
-    { "name": "coyote_update_phase" },
-    { "name": "coyote_delete_phase" },
-    { "name": "coyote_list_activities" },
-    { "name": "coyote_create_activity" },
-    { "name": "coyote_update_activity" },
-    { "name": "coyote_delete_activity" }
-  ],
-  "compatibility": {
-    "os": ["macos", "windows"]
-  },
-  "_note": "Linux is intentionally excluded: Linux users install via install.sh (Claude Code CLI only). mcpb targets Claude Desktop on macOS and Windows."
+  "license": "MIT"
 }
