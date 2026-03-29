@@ -113,12 +113,13 @@ node dist/index.js login
 
 ## バージョン管理
 
-バージョンは `package.json` と `src/index.ts` の2箇所で管理する。**必ず両方を同時に更新すること。**
+バージョンは **`package.json` のみ**で管理する。`src/index.ts` は `createRequire` で `package.json` から動的に読み込むため、個別更新は不要。`manifest.json` のバージョンは `npm run build:mcpb` 実行時に自動同期される。
 
-| ファイル | 箇所 |
+| ファイル | 更新方法 |
 |---|---|
-| `package.json` | `"version"` フィールド |
-| `src/index.ts` | `new Server({ name: 'coyote', version: '...' }, ...)` |
+| `package.json` | `"version"` フィールドを手動更新（唯一の更新箇所） |
+| `src/index.ts` | `package.json` から動的読み込み — 更新不要 |
+| `manifest.json` | `npm run build:mcpb` 実行時に自動同期 — 更新不要 |
 
 バグ修正・機能追加・リファクタリングを問わず、コードを変更してPRを作成する際は必ずパッチバージョン以上をインクリメントする。
 

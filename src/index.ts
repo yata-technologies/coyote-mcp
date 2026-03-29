@@ -16,13 +16,14 @@ import { projectTools, handleProject } from './tools/projects.js'
 import { sprintTools, handleSprint } from './tools/sprints.js'
 import { configTools, handleConfig } from './tools/config.js'
 import { memberTools, handleMember } from './tools/members.js'
+import { createRequire } from 'module'
 import { writeToken, readToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_DIR = join(__dirname, '..')
 const BUILD_PENDING_FILE = join(homedir(), '.coyote', 'build-pending')
 const IS_GIT_REPO = existsSync(join(REPO_DIR, '.git'))
-const VERSION = '1.5.4'
+const VERSION: string = (createRequire(import.meta.url)('../package.json') as { version: string }).version
 const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
 
 // --- Auto-update helpers ---

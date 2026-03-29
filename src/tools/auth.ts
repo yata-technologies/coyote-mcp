@@ -72,7 +72,7 @@ async function runDeviceAuth(): Promise<string> {
 
     if (data.access_token) {
       writeToken(data.access_token)
-      return `Your browser has been opened to: ${verification_uri}\nEnter code: ${user_code}\n\n✅ Authenticated as ${label}. Token saved to ~/.coyote/token.`
+      return `Open this URL in your browser: ${verification_uri}\nEnter code: ${user_code}\n\n✅ Authenticated as ${label}. Token saved to ~/.coyote/token.`
     }
     if (data.error === 'expired_token') {
       throw new Error('Authorization code expired. Please run coyote_login again.')

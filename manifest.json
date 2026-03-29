@@ -50,5 +50,6 @@
   ],
   "compatibility": {
     "os": ["macos", "windows"]
-  }
+  },
+  "_note": "Linux is intentionally excluded: Linux users install via install.sh (Claude Code CLI only). mcpb targets Claude Desktop on macOS and Windows."
 }
