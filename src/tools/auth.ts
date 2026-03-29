@@ -35,11 +35,11 @@ export async function handleAuth(name: string): Promise<string> {
 function openBrowser(url: string): void {
   const p = platform()
   try {
-    if (p === 'win32') {
-      spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' }).unref()
-    } else {
-      spawn(p === 'darwin' ? 'open' : 'xdg-open', [url], { detached: true, stdio: 'ignore' }).unref()
-    }
+    const child = p === 'win32'
+      ? spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' })
+      : spawn(p === 'darwin' ? 'open' : 'xdg-open', [url], { detached: true, stdio: 'ignore' })
+    child.on('error', () => { /* ignore — user opens manually */ })
+    child.unref()
   } catch { /* ignore — user opens manually */ }
 }
 
