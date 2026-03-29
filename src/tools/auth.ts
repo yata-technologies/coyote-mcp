@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import { hostname, platform } from 'os'
 import { writeToken } from '../lib/token.js'
 import { CoyoteClient } from '../lib/client.js'
@@ -31,6 +32,17 @@ export async function handleAuth(name: string): Promise<string> {
   throw new Error(`Unknown auth tool: ${name}`)
 }
 
+function openBrowser(url: string): void {
+  const p = platform()
+  try {
+    if (p === 'win32') {
+      spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' }).unref()
+    } else {
+      spawn(p === 'darwin' ? 'open' : 'xdg-open', [url], { detached: true, stdio: 'ignore' }).unref()
+    }
+  } catch { /* ignore — user opens manually */ }
+}
+
 async function runDeviceAuth(): Promise<string> {
   const label = `Claude Code on ${hostname()} (${platform()})`
 
@@ -43,6 +55,8 @@ async function runDeviceAuth(): Promise<string> {
 
   const { device_code, user_code, verification_uri, interval } =
     await res.json() as { device_code: string; user_code: string; verification_uri: string; interval: number }
+
+  openBrowser(verification_uri)
 
   const deadline = Date.now() + 15 * 60 * 1000
   const pollMs = (interval ?? 5) * 1000
@@ -58,7 +72,7 @@ async function runDeviceAuth(): Promise<string> {
 
     if (data.access_token) {
       writeToken(data.access_token)
-      return `Open ${verification_uri} and enter: ${user_code}\n\n✅ Authenticated as ${label}. Token saved to ~/.coyote/token.`
+      return `Your browser has been opened to: ${verification_uri}\nEnter code: ${user_code}\n\n✅ Authenticated as ${label}. Token saved to ~/.coyote/token.`
     }
     if (data.error === 'expired_token') {
       throw new Error('Authorization code expired. Please run coyote_login again.')
