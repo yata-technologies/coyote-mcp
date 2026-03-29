@@ -3,7 +3,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { execSync, spawnSync } from 'child_process'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from 'fs'
 import { homedir, hostname, platform } from 'os'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
@@ -20,39 +20,171 @@ import { writeToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_DIR = join(__dirname, '..')
+const BUILD_PENDING_FILE = join(homedir(), '.coyote', 'build-pending')
+
+// --- Auto-update helpers ---
+
+type GitErrorKind = 'auth' | 'network' | 'timeout' | 'not_found' | 'diverged' | 'unknown'
+
+function classifyGitError(err: unknown): GitErrorKind {
+  if (err instanceof Error && (err as NodeJS.ErrnoException).code === 'ENOENT') return 'not_found'
+  if (err instanceof Error && ((err as { killed?: boolean }).killed === true || (err as { signal?: string }).signal != null)) return 'timeout'
+  const stderr = err instanceof Error ? (err as { stderr?: Buffer }).stderr?.toString() ?? '' : ''
+  if (/Authentication failed|Permission denied|could not read Username|Invalid username/i.test(stderr)) return 'auth'
+  if (/Could not resolve host|Connection refused|Network is unreachable/i.test(stderr)) return 'network'
+  if (/not possible to fast.forward|diverged/i.test(stderr)) return 'diverged'
+  return 'unknown'
+}
+
+function writeBuildPending(commitHash: string): void {
+  try {
+    mkdirSync(join(homedir(), '.coyote'), { recursive: true })
+    writeFileSync(BUILD_PENDING_FILE, commitHash, 'utf8')
+  } catch { /* ignore */ }
+}
+
+function clearBuildPending(): void {
+  try { unlinkSync(BUILD_PENDING_FILE) } catch { /* ignore */ }
+}
+
+// Invoke tsc directly via process.execPath to avoid PATH dependency (e.g. nvm environments)
+function runBuild(pulledHash: string): boolean {
+  const tscBin = join(REPO_DIR, 'node_modules', 'typescript', 'bin', 'tsc')
+  try {
+    execSync(`"${process.execPath}" "${tscBin}"`, { cwd: REPO_DIR, stdio: 'pipe', timeout: 60000 })
+    clearBuildPending()
+    return true
+  } catch {
+    writeBuildPending(pulledHash)
+    process.stderr.write(
+      `[coyote-mcp] Auto-update failed: build error after git pull.\n` +
+      `\u26a0\ufe0f  Source was updated but dist/ could not be rebuilt. Manual build required:\n` +
+      `  npm install --prefix "${REPO_DIR}"\n` +
+      `  npm run build --prefix "${REPO_DIR}"\n` +
+      `  Restart Claude Code or run /mcp to reconnect\n`
+    )
+    return false
+  }
+}
+
+// Retry a build that failed in a previous session (flag file approach)
+function tryPendingBuild(): void {
+  if (!existsSync(BUILD_PENDING_FILE)) return
+  let pendingHash: string
+  try {
+    pendingHash = readFileSync(BUILD_PENDING_FILE, 'utf8').trim()
+  } catch {
+    clearBuildPending()
+    return
+  }
+  let currentHash: string
+  try {
+    currentHash = execSync(`git -C "${REPO_DIR}" rev-parse HEAD`, { encoding: 'utf8', stdio: 'pipe', timeout: 5000 }).trim()
+  } catch {
+    return
+  }
+  if (pendingHash !== currentHash) {
+    clearBuildPending()
+    return
+  }
+  process.stderr.write('[coyote-mcp] Retrying pending build from previous update...\n')
+  runBuild(currentHash)
+}
 
 // --- Auto-update ---
 
 function tryAutoUpdate(): void {
+  tryPendingBuild()
+
   let autoUpdate = true
   try {
     const cfg = JSON.parse(readFileSync(join(homedir(), '.coyote', 'config.json'), 'utf8'))
     if (cfg.auto_update === false) autoUpdate = false
   } catch { /* no config — default true */ }
 
+  // Step 1: fetch
   try {
-    execSync(`git -C ${REPO_DIR} fetch origin main --quiet`, { stdio: 'ignore' })
-    const behind = execSync(
-      `git -C ${REPO_DIR} rev-list HEAD..origin/main --count`,
-      { encoding: 'utf8' }
-    ).trim()
-
-    if (behind === '0') return
-
-    if (!autoUpdate) {
-      process.stderr.write(`[coyote-mcp] Update available. Run: git -C ${REPO_DIR} pull && npm run build --prefix ${REPO_DIR}\n`)
-      return
+    execSync(`git -C "${REPO_DIR}" fetch origin main --quiet`, { stdio: 'pipe', timeout: 15000 })
+  } catch (err) {
+    const kind = classifyGitError(err)
+    if (kind === 'not_found') {
+      process.stderr.write('[coyote-mcp] Update check failed: git not found. Please install git. Starting with existing build.\n')
+    } else if (kind === 'auth') {
+      process.stderr.write(
+        `[coyote-mcp] Update check failed: git authentication error.\n` +
+        `To update manually:\n` +
+        `  1. Pull the latest code (git pull or your GUI git client)\n` +
+        `  2. npm run build --prefix "${REPO_DIR}"\n` +
+        `  3. Restart Claude Code or run /mcp to reconnect\n`
+      )
+    } else if (kind === 'timeout') {
+      process.stderr.write('[coyote-mcp] Update check failed: git fetch timed out (15s). Check your network or git credentials. Starting with existing build.\n')
+    } else {
+      process.stderr.write('[coyote-mcp] Update check failed: cannot reach remote (network error). Starting with existing build.\n')
     }
+    return
+  }
 
-    process.stderr.write('[coyote-mcp] Updating to latest version...\n')
-    execSync(`git -C ${REPO_DIR} pull --ff-only`, { stdio: 'ignore' })
-    execSync(`npm run build --prefix ${REPO_DIR}`, { stdio: 'ignore' })
-    process.stderr.write('[coyote-mcp] Updated. Restarting...\n')
+  // Step 2: check if behind
+  let behind: string
+  try {
+    behind = execSync(`git -C "${REPO_DIR}" rev-list HEAD..origin/main --count`, { encoding: 'utf8', stdio: 'pipe', timeout: 5000 }).trim()
+  } catch {
+    return
+  }
 
+  if (behind === '0') return
+
+  if (!autoUpdate) {
+    process.stderr.write(`[coyote-mcp] Update available. Run: git -C "${REPO_DIR}" pull && npm run build --prefix "${REPO_DIR}"\n`)
+    return
+  }
+
+  process.stderr.write('[coyote-mcp] Updating to latest version...\n')
+
+  // Step 3: pull
+  try {
+    execSync(`git -C "${REPO_DIR}" pull --ff-only`, { stdio: 'pipe', timeout: 15000 })
+  } catch (err) {
+    const kind = classifyGitError(err)
+    if (kind === 'auth') {
+      process.stderr.write(
+        `[coyote-mcp] Update check failed: git authentication error.\n` +
+        `To update manually:\n` +
+        `  1. Pull the latest code (git pull or your GUI git client)\n` +
+        `  2. npm run build --prefix "${REPO_DIR}"\n` +
+        `  3. Restart Claude Code or run /mcp to reconnect\n`
+      )
+    } else if (kind === 'diverged') {
+      process.stderr.write(
+        `[coyote-mcp] Auto-update failed: local branch has diverged from origin/main.\n` +
+        `To update manually:\n` +
+        `  git -C "${REPO_DIR}" reset --hard origin/main\n` +
+        `  npm run build --prefix "${REPO_DIR}"\n` +
+        `  Restart Claude Code or run /mcp to reconnect\n`
+      )
+    } else {
+      process.stderr.write('[coyote-mcp] Auto-update failed: git pull error. Starting with existing build.\n')
+    }
+    return
+  }
+
+  // Step 4: record HEAD for flag file
+  let pulledHash = ''
+  try {
+    pulledHash = execSync(`git -C "${REPO_DIR}" rev-parse HEAD`, { encoding: 'utf8', stdio: 'pipe', timeout: 5000 }).trim()
+  } catch { /* proceed without hash — flag file won't be used */ }
+
+  // Step 5: build
+  if (!runBuild(pulledHash)) return
+
+  // Step 6: restart
+  process.stderr.write('[coyote-mcp] Updated. Restarting...\n')
+  try {
     const result = spawnSync(process.execPath, process.argv.slice(1), { stdio: 'inherit' })
     process.exit(result.status ?? 0)
   } catch {
-    process.stderr.write('[coyote-mcp] Auto-update failed, continuing with existing build.\n')
+    process.stderr.write('[coyote-mcp] Restart failed after update. Please restart Claude Code manually.\n')
   }
 }
 
@@ -133,7 +265,7 @@ async function startServer(): Promise<void> {
   tryAutoUpdate()
 
   const server = new Server(
-    { name: 'coyote', version: '1.5.2' },
+    { name: 'coyote', version: '1.5.3' },
     { capabilities: { tools: {} } }
   )
 
