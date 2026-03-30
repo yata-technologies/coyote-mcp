@@ -4,56 +4,6 @@ Claude Code から自然言語で Coyote のワークログ・タスク・イシ
 
 ---
 
-## Claude Desktop Cowork（MCPB）でのセットアップ
-
-Claude Desktop の Cowork 機能を使う場合は、`.mcpb` パッケージファイルからインストールします。
-
-### 1. 拡張機能をインストールする
-
-1. `.mcpb` ファイルを入手する（管理者から配布されます）
-2. Claude Desktop を開く
-3. **Settings → Extensions → Install Extension** を選択
-4. `.mcpb` ファイルを選択してインストール
-
-### 2. ログインする
-
-新しい会話を開き、以下のように話しかけてください。
-
-**English:**
-> I installed a Coyote extension. Please log me in.
-
-**日本語:**
-> Coyoteという拡張機能をインストールしました。ログインしてください。
-
-### 3. ブラウザで認証する
-
-Claude がブラウザを開き、次のような応答を返します。
-
-```
-Your browser has been opened to: https://...
-
-Enter this code on the page:
-  XXXX-XXXX
-
-Once you have approved the request in the browser, call coyote_login_complete.
-```
-
-表示されたコードをブラウザのページに入力して「承認」してください。
-
-### 4. ログインを完了する
-
-ブラウザで承認したら、Claude に以下のように伝えてください。
-
-**English:**
-> Done.
-
-**日本語:**
-> 承認しました。
-
-Claude が自動的にログインを完了し、`✅ Authentication complete.` と表示されます。以降、Coyote のワークログ・タスク・イシューを自然言語で操作できます。
-
----
-
 ## 概要
 
 Coyote MCP Server をインストールすると、Claude Code のチャット上で以下のような操作が可能になります。
