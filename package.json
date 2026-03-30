@@ -1,6 +1,6 @@
 {
   "name": "@yata/coyote-mcp",
-  "version": "1.5.3",
+  "version": "1.5.6",
   "description": "Coyote MCP server for Claude Code integration",
   "main": "dist/index.js",
   "type": "module",
@@ -9,12 +9,14 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:mcpb": "node scripts/build-mcpb.js",
     "dev": "tsc --watch"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
     "@types/node": "^25.5.0",
     "typescript": "^5.4.0"
   }

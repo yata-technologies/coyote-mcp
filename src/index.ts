@@ -16,11 +16,15 @@ import { projectTools, handleProject } from './tools/projects.js'
 import { sprintTools, handleSprint } from './tools/sprints.js'
 import { configTools, handleConfig } from './tools/config.js'
 import { memberTools, handleMember } from './tools/members.js'
-import { writeToken } from './lib/token.js'
+import { createRequire } from 'module'
+import { writeToken, readToken } from './lib/token.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_DIR = join(__dirname, '..')
 const BUILD_PENDING_FILE = join(homedir(), '.coyote', 'build-pending')
+const IS_GIT_REPO = existsSync(join(REPO_DIR, '.git'))
+const VERSION: string = (createRequire(import.meta.url)('../package.json') as { version: string }).version
+const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
 
 // --- Auto-update helpers ---
 
@@ -190,10 +194,40 @@ function tryAutoUpdate(): void {
   }
 }
 
+// --- mcpb version notification ---
+
+function semverGt(a: string, b: string): boolean {
+  const pa = a.split('.').map(Number)
+  const pb = b.split('.').map(Number)
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) > (pb[i] ?? 0)) return true
+    if ((pa[i] ?? 0) < (pb[i] ?? 0)) return false
+  }
+  return false
+}
+
+async function tryVersionCheck(): Promise<void> {
+  const token = readToken()
+  if (!token) return
+  try {
+    const res = await fetch(`${BASE_URL}/api/mcp/version`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(5000),
+    })
+    if (!res.ok) return
+    const { version: latest } = await res.json() as { version: string }
+    if (semverGt(latest, VERSION)) {
+      process.stderr.write(
+        `[coyote-mcp] 新しいバージョン (v${latest}) が利用可能です。\n` +
+        `Coyote アプリの設定画面からダウンロードしてください。\n`
+      )
+    }
+  } catch { /* ignore — don't block startup */ }
+}
+
 // --- CLI login mode ---
 
 async function runLogin(): Promise<void> {
-  const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
   const label = `Claude Code on ${hostname()} (${platform()})`
 
   console.log('🐺 Coyote — Device Authorization\n')
@@ -250,7 +284,7 @@ function sleep(ms: number): Promise<void> {
 
 const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools, ...memberTools]
 
-const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_get_me'])
+const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_login_complete', 'coyote_get_me'])
 const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
 const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task', 'coyote_delete_task'])
 const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
@@ -264,10 +298,14 @@ const CONFIG_TOOLS  = new Set([
 const MEMBER_TOOLS  = new Set(['coyote_add_member', 'coyote_update_member_role', 'coyote_remove_member'])
 
 async function startServer(): Promise<void> {
-  tryAutoUpdate()
+  if (IS_GIT_REPO) {
+    tryAutoUpdate()
+  } else {
+    await tryVersionCheck()
+  }
 
   const server = new Server(
-    { name: 'coyote', version: '1.5.3' },
+    { name: 'coyote', version: VERSION },
     { capabilities: { tools: {} } }
   )
 

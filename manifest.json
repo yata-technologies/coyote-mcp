@@ -1,0 +1,21 @@
+{
+  "manifest_version": "0.2",
+  "name": "coyote",
+  "version": "1.5.6",
+  "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
+  "author": {
+    "name": "YATA Technologies"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/index.js"
+      ],
+      "env": {}
+    }
+  },
+  "license": "MIT"
+}
