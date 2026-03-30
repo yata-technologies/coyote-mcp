@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+// Polyfill fetch for environments where it is not a global (e.g. Cowork's bundled Node.js < 18)
+if (typeof globalThis.fetch === 'undefined') {
+  const { fetch, Headers, Request, Response } = await import('undici')
+  Object.assign(globalThis, { fetch, Headers, Request, Response })
+}
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js'
