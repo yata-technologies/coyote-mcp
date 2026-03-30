@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
-const output = join(ROOT, `coyote-v${version}.mcpb`)
+const output = join(ROOT, 'coyote.mcpb')
 
 // Sync version in manifest.json from package.json
 const manifestPath = join(ROOT, 'manifest.json')
@@ -28,7 +28,7 @@ console.log(`Packaging ${output}...`)
 const mcpb = join(ROOT, 'node_modules', '.bin', 'mcpb')
 execSync(`"${mcpb}" pack "${ROOT}" "${output}"`, { cwd: ROOT, stdio: 'inherit' })
 
-console.log(`\nDone: coyote-v${version}.mcpb (${getSize(output)})`)
+console.log(`\nDone: coyote.mcpb v${version} (${getSize(output)})`)
 
 function getSize(file) {
   try {
