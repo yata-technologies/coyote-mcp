@@ -34,7 +34,7 @@ You can clone to any directory. For example:
 
 ```bash
 cd ~/work
-git clone git@github.com-work:Yata-Technologies/coyote-mcp.git
+git clone git@github.com:Yata-Technologies/coyote-mcp.git
 ```
 
 ### 2. Run the install script
