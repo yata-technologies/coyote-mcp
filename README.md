@@ -97,7 +97,7 @@ cd ~/work/coyote-mcp && git pull && npm run build
 
 | Category | Tools |
 |---|---|
-| Auth | `coyote_login`, `coyote_get_me` |
+| Auth | `coyote_login`, `coyote_login_complete`, `coyote_get_me` |
 | Projects | `coyote_list_projects`, `coyote_list_members` |
 | Issues | `coyote_list_issues`, `coyote_get_issue`, `coyote_create_issue`, `coyote_update_issue`, `coyote_delete_issue` |
 | Tasks | `coyote_list_tasks`, `coyote_get_task`, `coyote_create_task`, `coyote_update_task`, `coyote_delete_task` |
