@@ -9,8 +9,6 @@ const ROOT = join(__dirname, '..')
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
 const output = join(ROOT, 'coyote.mcpb')
 
-// `npm run build` (called below) will sync manifest.json via its prebuild hook.
-
 console.log('Building TypeScript...')
 execSync('npm run build', { cwd: ROOT, stdio: 'inherit' })
 
