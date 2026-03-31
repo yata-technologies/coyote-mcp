@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync } from 'child_process'
-import { readFileSync, writeFileSync, rmSync } from 'fs'
+import { readFileSync, rmSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -9,14 +9,7 @@ const ROOT = join(__dirname, '..')
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
 const output = join(ROOT, 'coyote.mcpb')
 
-// Sync version in manifest.json from package.json
-const manifestPath = join(ROOT, 'manifest.json')
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-if (manifest.version !== version) {
-  manifest.version = version
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
-  console.log(`Updated manifest.json version to ${version}`)
-}
+// `npm run build` (called below) will sync manifest.json via its prebuild hook.
 
 console.log('Building TypeScript...')
 execSync('npm run build', { cwd: ROOT, stdio: 'inherit' })

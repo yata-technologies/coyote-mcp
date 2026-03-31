@@ -1,6 +1,6 @@
 {
   "name": "@yata/coyote-mcp",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "Coyote MCP server for Claude Code integration",
   "main": "dist/index.js",
   "type": "module",
@@ -8,6 +8,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "prebuild": "node scripts/sync-manifest-version.js",
     "build": "tsc",
     "build:mcpb": "node scripts/build-mcpb.js",
     "dev": "tsc --watch"
