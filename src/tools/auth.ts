@@ -81,7 +81,7 @@ function clearPendingAuth(): void {
 }
 
 async function startDeviceAuth(): Promise<string> {
-  const label = `Coyote on ${hostname()} (${platform()})`
+  const label = `Coyote Extension on ${hostname()} (${platform()})`
 
   const res = await fetch(`${BASE_URL}/auth/device/code`, {
     method: 'POST',
