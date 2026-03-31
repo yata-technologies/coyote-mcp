@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc",
     "build:mcpb": "node scripts/build-mcpb.js",
+    "clean": "rm -rf dist coyote.mcpb",
     "dev": "tsc --watch"
   },
   "dependencies": {
