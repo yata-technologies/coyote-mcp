@@ -8,9 +8,9 @@ A MCP (Model Context Protocol) server that lets you manage Coyote worklogs, task
 
 Once installed, you can interact with Coyote directly from Claude Code chat:
 
-- `List my tasks that are due today.`
-- `Start implementing task ABC-987 now.`
-- `Log my time for testing ABC-987 starting now.`
+- `List my tasks that are due today`
+- `Start implementing task ABC-987 now`
+- `Log my time for testing ABC-987 starting now`
 
 Claude Code calls MCP tools under the hood, which communicate with the Coyote API (Cloudflare Workers). Your auth token is stored locally at `~/.coyote/token`.
 
@@ -66,13 +66,13 @@ Once done, the terminal will show `✅ Authenticated`.
 After authentication, restart Claude Code. Coyote tools will be available in chat.
 
 ### 5. You’re all set!
-Try asking Claude things like `List my projects` or `Show my tasks for today`.
+Try asking Claude things like `"List my projects"` or `"Show my tasks for today"`.
 
 ---
 
 ## Re-authentication
 
-If your token expires or you need to re-authenticate, ask `Login to coyote using MCP`.
+If your token expires or you need to re-authenticate, ask `"Login to coyote using MCP"`.
 
 ---
 
