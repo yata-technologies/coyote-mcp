@@ -33,13 +33,15 @@ Claude Code calls MCP tools under the hood, which communicate with the Coyote AP
 You can clone to any directory. For example:
 
 ```bash
-git clone git@github.com-work:Yata-Technologies/coyote-mcp.git ~/work/coyote-mcp
+cd ~/work
+git clone git@github.com-work:Yata-Technologies/coyote-mcp.git
 ```
 
 ### 2. Run the install script
 
 ```bash
-bash ~/work/coyote-mcp/install.sh
+cd coyote-mcp
+bash ./install.sh
 ```
 
 Adjust the path if you cloned elsewhere.
