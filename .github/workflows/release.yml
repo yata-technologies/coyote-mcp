@@ -1,0 +1,43 @@
+name: Release mcpb to R2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build mcpb
+        run: npm run build:mcpb
+
+      - name: Extract version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Upload coyote.mcpb to R2
+        run: npx wrangler r2 object put coyote-mcp-dist/coyote.mcpb --file coyote.mcpb --content-type application/zip --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Upload version.json to R2
+        run: |
+          echo '{"version":"${{ steps.version.outputs.version }}"}' > version.json
+          npx wrangler r2 object put coyote-mcp-dist/version.json --file version.json --content-type application/json --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Summary
+        run: echo "### Released coyote-mcp v${{ steps.version.outputs.version }} to R2" >> $GITHUB_STEP_SUMMARY
