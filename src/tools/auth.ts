@@ -36,7 +36,7 @@ export const authTools = [
   },
   {
     name: 'coyote_update',
-    description: 'Check for a new version of Coyote MCP and download it if available.',
+    description: 'Check for a new version of Coyote MCP and download it if available. Call this when any Coyote tool returns a 500 error, as that often indicates a version incompatibility between the MCP and the Coyote API.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
 ]
@@ -192,7 +192,7 @@ function clearPendingAuth(): void {
 }
 
 async function startDeviceAuth(): Promise<string> {
-  const label = `Coyote Extension on ${hostname()} (${platform()})`
+  const label = `Claude Code on ${hostname()} (${platform()})`
 
   const res = await fetch(`${BASE_URL}/auth/device/code`, {
     method: 'POST',
