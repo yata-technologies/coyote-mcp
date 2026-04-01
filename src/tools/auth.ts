@@ -192,7 +192,7 @@ function clearPendingAuth(): void {
 }
 
 async function startDeviceAuth(): Promise<string> {
-  const label = `Claude Code on ${hostname()} (${platform()})`
+  const label = `Coyote MCP on ${hostname()} (${platform()})`
 
   const res = await fetch(`${BASE_URL}/auth/device/code`, {
     method: 'POST',
