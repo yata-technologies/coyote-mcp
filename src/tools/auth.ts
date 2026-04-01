@@ -1,12 +1,15 @@
 import { spawn } from 'child_process'
-import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs'
+import { readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from 'fs'
 import { homedir, hostname, platform } from 'os'
-import { join } from 'path'
+import { dirname, join } from 'path'
+import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
 import { writeToken, readToken } from '../lib/token.js'
 import { CoyoteClient } from '../lib/client.js'
 
 const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const IS_GIT_REPO = existsSync(join(__dirname, '..', '.git'))
 const PENDING_AUTH_FILE = join(homedir(), '.coyote', 'pending-auth.json')
 const VERSION: string = (createRequire(import.meta.url)('../../package.json') as { version: string }).version
 
@@ -96,6 +99,7 @@ async function fetchLatestVersion(): Promise<string | null> {
 
 // Returns nudge string if update available, empty string otherwise (3s timeout)
 async function checkUpdateNotice(): Promise<string> {
+  if (IS_GIT_REPO) return ''
   try {
     const latest = await Promise.race([
       fetchLatestVersion(),
@@ -112,6 +116,9 @@ async function checkUpdateNotice(): Promise<string> {
 }
 
 async function handleUpdate(): Promise<string> {
+  if (IS_GIT_REPO) {
+    return '✅ You are on a git install — updates are applied automatically on startup via `git pull`. Restart your Claude Code session to pick up the latest version.'
+  }
   const latest = await fetchLatestVersion()
   if (!latest) {
     return '⚠️ Could not reach the Coyote server to check for updates. Please try again later.'
