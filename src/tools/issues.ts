@@ -3,16 +3,16 @@ import { CoyoteClient } from '../lib/client.js'
 export const issueTools = [
   {
     name: 'coyote_list_issues',
-    description: 'List issues, optionally filtered by project, sprint, assignee, or status.',
+    description: 'List issues, optionally filtered by project, sprint, owner, or status.',
     inputSchema: {
       type: 'object' as const,
       properties: {
-        project_id:  { type: 'string', description: 'Filter by project ID (optional)' },
-        sprint_id:   { type: 'string', description: 'Filter by sprint ID (optional)' },
-        assignee_id: { type: 'string', description: 'Filter by assignee user ID, or "me" for current user (optional)' },
-        status:      { type: 'string', description: 'Filter by status (optional)' },
-        vendor:      { type: 'string', description: 'Filter by vendor name (optional)' },
-        category:    { type: 'string', description: 'Filter by category name (optional)' },
+        project_id: { type: 'string', description: 'Filter by project ID (optional)' },
+        sprint_id:  { type: 'string', description: 'Filter by sprint ID (optional)' },
+        owner_id:   { type: 'string', description: 'Filter by owner user ID, or "me" for current user (optional)' },
+        status:     { type: 'string', description: 'Filter by status (optional)' },
+        vendor:     { type: 'string', description: 'Filter by vendor name (optional)' },
+        category:   { type: 'string', description: 'Filter by category name (optional)' },
       },
     },
   },
@@ -37,8 +37,7 @@ export const issueTools = [
         title:       { type: 'string', description: 'Issue title' },
         title_en:    { type: 'string', description: 'English title (optional)' },
         category:    { type: 'string', description: 'Category name (optional)' },
-        vendor:      { type: 'string', description: 'Vendor name (optional)' },
-        assignee_id: { type: 'string', description: 'Assignee user ID, or "me" (optional)' },
+        owner_id:    { type: 'string', description: 'Owner user ID, or "me" (optional). Vendor is auto-set from owner.' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
@@ -59,8 +58,7 @@ export const issueTools = [
         title:       { type: 'string', description: 'Issue title (optional)' },
         title_en:    { type: 'string', description: 'English title (optional)' },
         category:    { type: 'string', description: 'Category name (optional)' },
-        vendor:      { type: 'string', description: 'Vendor name (optional)' },
-        assignee_id: { type: ['string', 'null'], description: 'Assignee user ID, or "me"; pass null to unassign (optional)' },
+        owner_id:    { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional). Vendor is auto-set from owner.' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
@@ -85,7 +83,7 @@ export const issueTools = [
 
 type Issue = {
   id: string; slug: string | null; title: string; status: string
-  priority: string | null; assignee_id: string | null; vendor: string | null
+  priority: string | null; owner_id: string | null; vendor: string | null
 }
 
 async function resolveMe(client: CoyoteClient, value: string | undefined): Promise<string | undefined> {
@@ -106,8 +104,8 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.status)      query.status      = String(args.status)
     if (args.vendor)      query.vendor      = String(args.vendor)
     if (args.category)    query.category    = String(args.category)
-    const assigneeId = await resolveMe(client, args.assignee_id as string | undefined)
-    if (assigneeId) query.assignee_id = assigneeId
+    const ownerId = await resolveMe(client, args.owner_id as string | undefined)
+    if (ownerId) query.owner_id = ownerId
 
     const issues = await client.get<Issue[]>('/api/issues', query)
     if (issues.length === 0) return 'No issues found.'
@@ -123,16 +121,15 @@ export async function handleIssue(name: string, args: Record<string, string | nu
   }
 
   if (name === 'coyote_create_issue') {
-    const assigneeId = await resolveMe(client, args.assignee_id as string | undefined)
+    const ownerId = await resolveMe(client, args.owner_id as string | undefined)
     const body: Record<string, unknown> = {
       sprint_id: args.sprint_id,
       title: args.title,
     }
-    if (args.title_en    !== undefined) body.title_en    = args.title_en
-    if (args.category    !== undefined) body.category    = args.category
-    if (args.vendor      !== undefined) body.vendor      = args.vendor
-    if (assigneeId       !== undefined) body.assignee_id = assigneeId ?? null
-    if (args.status      !== undefined) body.status      = args.status
+    if (args.title_en    !== undefined) body.title_en  = args.title_en
+    if (args.category    !== undefined) body.category  = args.category
+    if (ownerId          !== undefined) body.owner_id  = ownerId ?? null
+    if (args.status      !== undefined) body.status    = args.status
     if (args.priority    !== undefined) body.priority    = args.priority
     if (args.level       !== undefined) body.level       = args.level
     if (args.weight      !== undefined) body.weight      = Number(args.weight)
@@ -143,15 +140,14 @@ export async function handleIssue(name: string, args: Record<string, string | nu
   }
 
   if (name === 'coyote_update_issue') {
-    const assigneeId = await resolveMe(client, args.assignee_id as string | undefined)
+    const ownerId = await resolveMe(client, args.owner_id as string | undefined)
     const body: Record<string, unknown> = {}
-    if (args.sprint_id   !== undefined) body.sprint_id   = args.sprint_id
-    if (args.title       !== undefined) body.title       = args.title
-    if (args.title_en    !== undefined) body.title_en    = args.title_en
-    if (args.category    !== undefined) body.category    = args.category
-    if (args.vendor      !== undefined) body.vendor      = args.vendor
-    if (assigneeId       !== undefined) body.assignee_id = assigneeId ?? null
-    if (args.status      !== undefined) body.status      = args.status
+    if (args.sprint_id   !== undefined) body.sprint_id = args.sprint_id
+    if (args.title       !== undefined) body.title     = args.title
+    if (args.title_en    !== undefined) body.title_en  = args.title_en
+    if (args.category    !== undefined) body.category  = args.category
+    if (ownerId          !== undefined) body.owner_id  = ownerId ?? null
+    if (args.status      !== undefined) body.status    = args.status
     if (args.priority    !== undefined) body.priority    = args.priority
     if (args.level       !== undefined) body.level       = args.level
     if (args.weight      !== undefined) body.weight      = Number(args.weight)
