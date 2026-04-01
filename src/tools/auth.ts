@@ -36,7 +36,7 @@ export const authTools = [
   },
   {
     name: 'coyote_update',
-    description: 'Check for a new version of Coyote MCP and download it if available.',
+    description: 'Check for a new version of Coyote MCP and download it if available. Call this when any Coyote tool returns a 500 error, as that often indicates a version incompatibility between the MCP and the Coyote API.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
 ]
