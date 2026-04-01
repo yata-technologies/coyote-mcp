@@ -2,11 +2,13 @@ import { spawn } from 'child_process'
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'fs'
 import { homedir, hostname, platform } from 'os'
 import { join } from 'path'
-import { writeToken } from '../lib/token.js'
+import { createRequire } from 'module'
+import { writeToken, readToken } from '../lib/token.js'
 import { CoyoteClient } from '../lib/client.js'
 
 const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
 const PENDING_AUTH_FILE = join(homedir(), '.coyote', 'pending-auth.json')
+const VERSION: string = (createRequire(import.meta.url)('../../package.json') as { version: string }).version
 
 interface PendingAuth {
   device_code: string
@@ -32,13 +34,23 @@ export const authTools = [
     description: 'Return the currently authenticated Coyote user.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
+  {
+    name: 'coyote_update',
+    description: 'Check for a new version of Coyote MCP and download it if available.',
+    inputSchema: { type: 'object' as const, properties: {} },
+  },
 ]
 
 export async function handleAuth(name: string): Promise<string> {
   if (name === 'coyote_get_me') {
     const client = new CoyoteClient()
-    const user = await client.get<{ name: string; email: string; system_role: string }>('/api/me')
-    return `Authenticated as ${user.name} (${user.email}) — role: ${user.system_role}`
+    const [user, updateNotice] = await Promise.all([
+      client.get<{ name: string; email: string; system_role: string }>('/api/me'),
+      checkUpdateNotice(),
+    ])
+    let result = `Authenticated as ${user.name} (${user.email}) — role: ${user.system_role}`
+    if (updateNotice) result += `\n\n---\n${updateNotice}`
+    return result
   }
 
   if (name === 'coyote_login') {
@@ -49,7 +61,106 @@ export async function handleAuth(name: string): Promise<string> {
     return await completeDeviceAuth()
   }
 
+  if (name === 'coyote_update') {
+    return await handleUpdate()
+  }
+
   throw new Error(`Unknown auth tool: ${name}`)
+}
+
+function semverGt(a: string, b: string): boolean {
+  const pa = a.split('.').map(Number)
+  const pb = b.split('.').map(Number)
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) > (pb[i] ?? 0)) return true
+    if ((pa[i] ?? 0) < (pb[i] ?? 0)) return false
+  }
+  return false
+}
+
+async function fetchLatestVersion(): Promise<string | null> {
+  const token = readToken()
+  if (!token) return null
+  try {
+    const res = await fetch(`${BASE_URL}/api/mcp/version`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(3000),
+    })
+    if (!res.ok) return null
+    const { version } = await res.json() as { version: string }
+    return version
+  } catch {
+    return null
+  }
+}
+
+// Returns nudge string if update available, empty string otherwise (3s timeout)
+async function checkUpdateNotice(): Promise<string> {
+  try {
+    const latest = await Promise.race([
+      fetchLatestVersion(),
+      new Promise<null>(resolve => setTimeout(() => resolve(null), 3000)),
+    ])
+    if (latest && semverGt(latest, VERSION)) {
+      return (
+        `🆕 A new version of Coyote MCP (v${latest}) is available.\n` +
+        `Run \`coyote_update\` to download it and get installation instructions.`
+      )
+    }
+  } catch { /* ignore */ }
+  return ''
+}
+
+async function handleUpdate(): Promise<string> {
+  const latest = await fetchLatestVersion()
+  if (!latest) {
+    return '⚠️ Could not reach the Coyote server to check for updates. Please try again later.'
+  }
+
+  if (!semverGt(latest, VERSION)) {
+    return `✅ Coyote MCP is up to date (v${VERSION}).`
+  }
+
+  // Download the new .mcpb
+  const token = readToken()
+  if (!token) return '⚠️ Not authenticated. Please call coyote_login first.'
+
+  let binary: Buffer
+  try {
+    const res = await fetch(`${BASE_URL}/api/mcp/download`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    binary = Buffer.from(await res.arrayBuffer())
+  } catch {
+    return (
+      `⚠️ Download failed (v${latest} is available).\n` +
+      `Please download manually from the Coyote app settings.`
+    )
+  }
+
+  // Save to ~/Downloads/
+  const downloadsDir = join(homedir(), 'Downloads')
+  const filePath = join(downloadsDir, `coyote-v${latest}.mcpb`)
+  try {
+    mkdirSync(downloadsDir, { recursive: true })
+    writeFileSync(filePath, binary)
+  } catch {
+    return (
+      `⚠️ Download failed (v${latest} is available) — could not write to Downloads folder.\n` +
+      `Please download manually from the Coyote app settings.`
+    )
+  }
+
+  return (
+    `🆕 New version v${latest} downloaded.\n\n` +
+    `To install:\n` +
+    `1. Open Claude Desktop\n` +
+    `2. Go to Settings → Extensions → Details → Install Extension\n` +
+    `3. Select the downloaded file\n\n` +
+    `After installation, fully quit and relaunch Claude Desktop. The new version will not be recognized without a restart.`
+  )
 }
 
 function openBrowser(url: string): void {
