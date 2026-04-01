@@ -7,7 +7,7 @@ export const worklogTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        user_id:    { type: 'string', description: 'Filter by user ID, or "me" for current user (optional)' },
+        owner_id:   { type: 'string', description: 'Filter by owner user ID, or "me" for current user (optional)' },
         task_slug:  { type: 'string', description: 'Filter by task slug, e.g. CHR-T1 (optional)' },
         project_id: { type: 'string', description: 'Filter by project ID (optional)' },
         sprint_id:  { type: 'string', description: 'Filter by sprint ID (optional)' },
@@ -88,11 +88,11 @@ export async function handleWorklog(name: string, args: Record<string, string | 
 
   if (name === 'coyote_list_worklogs') {
     const query: Record<string, string> = {}
-    if (args.user_id === 'me') {
+    if (args.owner_id === 'me') {
       const me = await client.get<{ id: string }>('/api/me')
-      query.user_id = me.id
-    } else if (args.user_id) {
-      query.user_id = String(args.user_id)
+      query.owner_id = me.id
+    } else if (args.owner_id) {
+      query.owner_id = String(args.owner_id)
     }
     if (args.task_slug) {
       const task = await client.get<{ id: string }>(`/api/tasks/${args.task_slug}`)
