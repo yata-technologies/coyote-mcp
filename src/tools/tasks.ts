@@ -17,7 +17,7 @@ export const taskTools = [
   },
   {
     name: 'coyote_get_task',
-    description: 'Get full details of a task by its slug (e.g. CHR-T1).',
+    description: 'Get full details of a task by its slug (e.g. CHR-T1). Response includes associated activities and derived phases.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -32,15 +32,15 @@ export const taskTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        issue_id:    { type: 'string', description: 'Issue ID to create the task under' },
-        title:       { type: 'string', description: 'Task title' },
-        owner_id:    { type: 'string', description: 'Owner user ID, or "me" (optional)' },
-        reviewer_id: { type: 'string', description: 'Reviewer user ID (optional)' },
-        category_id: { type: 'string', description: 'Category ID (optional)' },
-        phase_id:    { type: 'string', description: 'Phase ID (optional)' },
-        status:      { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
-        priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
-        weight:      { type: 'number', description: 'Effort weight (optional)' },
+        issue_id:     { type: 'string', description: 'Issue ID to create the task under' },
+        title:        { type: 'string', description: 'Task title' },
+        owner_id:     { type: 'string', description: 'Owner user ID, or "me" (optional)' },
+        reviewer_id:  { type: 'string', description: 'Reviewer user ID (optional)' },
+        category_id:  { type: 'string', description: 'Category ID (optional)' },
+        activity_ids: { type: 'array', items: { type: 'string' }, description: 'Activity IDs to associate with the task (optional). Use coyote_list_activities to find IDs.' },
+        status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
+        priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
+        weight:       { type: 'number', description: 'Effort weight (optional)' },
       },
       required: ['issue_id', 'title'],
     },
@@ -51,15 +51,15 @@ export const taskTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        slug:        { type: 'string', description: 'Task slug, e.g. CHR-T1' },
-        title:       { type: 'string', description: 'Task title (optional)' },
-        owner_id:    { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional)' },
-        reviewer_id: { type: ['string', 'null'], description: 'Reviewer user ID; pass null to clear (optional)' },
-        category_id: { type: ['string', 'null'], description: 'Category ID; pass null to clear (optional)' },
-        phase_id:    { type: ['string', 'null'], description: 'Phase ID; pass null to clear (optional)' },
-        status:      { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
-        priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
-        weight:      { type: 'number', description: 'Effort weight (optional)' },
+        slug:         { type: 'string', description: 'Task slug, e.g. CHR-T1' },
+        title:        { type: 'string', description: 'Task title (optional)' },
+        owner_id:     { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional)' },
+        reviewer_id:  { type: ['string', 'null'], description: 'Reviewer user ID; pass null to clear (optional)' },
+        category_id:  { type: ['string', 'null'], description: 'Category ID; pass null to clear (optional)' },
+        activity_ids: { type: 'array', items: { type: 'string' }, description: 'Activity IDs (full replacement). Omit to leave unchanged; pass [] to clear all (optional).' },
+        status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
+        priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
+        weight:       { type: 'number', description: 'Effort weight (optional)' },
       },
       required: ['slug'],
     },
@@ -90,7 +90,7 @@ async function resolveMe(client: CoyoteClient, value: string | undefined): Promi
   return value
 }
 
-export async function handleTask(name: string, args: Record<string, string | number | null>): Promise<string> {
+export async function handleTask(name: string, args: Record<string, string | number | string[] | null | undefined>): Promise<string> {
   const client = new CoyoteClient()
 
   if (name === 'coyote_list_tasks') {
@@ -121,13 +121,13 @@ export async function handleTask(name: string, args: Record<string, string | num
       issue_id: args.issue_id,
       title: args.title,
     }
-    if (ownerId)          body.owner_id    = ownerId
-    if (args.reviewer_id) body.reviewer_id = args.reviewer_id
-    if (args.category_id) body.category_id = args.category_id
-    if (args.phase_id)    body.phase_id    = args.phase_id
-    if (args.status)      body.status      = args.status
-    if (args.priority)    body.priority    = args.priority
-    if (args.weight)      body.weight      = Number(args.weight)
+    if (ownerId)              body.owner_id     = ownerId
+    if (args.reviewer_id)     body.reviewer_id  = args.reviewer_id
+    if (args.category_id)     body.category_id  = args.category_id
+    if (args.activity_ids)    body.activity_ids = args.activity_ids
+    if (args.status)          body.status       = args.status
+    if (args.priority)        body.priority     = args.priority
+    if (args.weight)          body.weight       = Number(args.weight)
 
     const task = await client.post<Task>('/api/tasks', body)
     return `✅ Task created: ${task.slug ?? task.id} — ${task.title}`
@@ -136,14 +136,14 @@ export async function handleTask(name: string, args: Record<string, string | num
   if (name === 'coyote_update_task') {
     const ownerId    = await resolveMe(client, args.owner_id as string | undefined)
     const body: Record<string, unknown> = {}
-    if (args.title       !== undefined) body.title       = args.title
-    if (ownerId          !== undefined) body.owner_id    = ownerId ?? null
-    if (args.reviewer_id !== undefined) body.reviewer_id = args.reviewer_id
-    if (args.category_id !== undefined) body.category_id = args.category_id
-    if (args.phase_id    !== undefined) body.phase_id    = args.phase_id
-    if (args.status      !== undefined) body.status      = args.status
-    if (args.priority    !== undefined) body.priority    = args.priority
-    if (args.weight      !== undefined) body.weight      = Number(args.weight)
+    if (args.title        !== undefined) body.title        = args.title
+    if (ownerId           !== undefined) body.owner_id     = ownerId ?? null
+    if (args.reviewer_id  !== undefined) body.reviewer_id  = args.reviewer_id
+    if (args.category_id  !== undefined) body.category_id  = args.category_id
+    if (args.activity_ids !== undefined) body.activity_ids = args.activity_ids
+    if (args.status       !== undefined) body.status       = args.status
+    if (args.priority     !== undefined) body.priority     = args.priority
+    if (args.weight       !== undefined) body.weight       = Number(args.weight)
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
     return `✅ Task updated: ${task.slug ?? task.id} — ${task.title} (status: ${task.status})`
