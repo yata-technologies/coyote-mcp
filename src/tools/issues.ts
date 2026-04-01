@@ -35,7 +35,6 @@ export const issueTools = [
       properties: {
         sprint_id:   { type: 'string', description: 'Sprint ID to create the issue in' },
         title:       { type: 'string', description: 'Issue title' },
-        title_en:    { type: 'string', description: 'English title (optional)' },
         category:    { type: 'string', description: 'Category name (optional)' },
         owner_id:    { type: 'string', description: 'Owner user ID, or "me" (optional). Vendor is auto-set from owner.' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
@@ -56,7 +55,6 @@ export const issueTools = [
         slug:        { type: 'string', description: 'Issue slug, e.g. CHR-5' },
         sprint_id:   { type: 'string', description: 'Move issue to a different sprint (optional)' },
         title:       { type: 'string', description: 'Issue title (optional)' },
-        title_en:    { type: 'string', description: 'English title (optional)' },
         category:    { type: 'string', description: 'Category name (optional)' },
         owner_id:    { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional). Vendor is auto-set from owner.' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
@@ -126,7 +124,6 @@ export async function handleIssue(name: string, args: Record<string, string | nu
       sprint_id: args.sprint_id,
       title: args.title,
     }
-    if (args.title_en    !== undefined) body.title_en  = args.title_en
     if (args.category    !== undefined) body.category  = args.category
     if (ownerId          !== undefined) body.owner_id  = ownerId ?? null
     if (args.status      !== undefined) body.status    = args.status
@@ -144,7 +141,6 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     const body: Record<string, unknown> = {}
     if (args.sprint_id   !== undefined) body.sprint_id = args.sprint_id
     if (args.title       !== undefined) body.title     = args.title
-    if (args.title_en    !== undefined) body.title_en  = args.title_en
     if (args.category    !== undefined) body.category  = args.category
     if (ownerId          !== undefined) body.owner_id  = ownerId ?? null
     if (args.status      !== undefined) body.status    = args.status
