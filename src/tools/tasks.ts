@@ -8,7 +8,7 @@ export const taskTools = [
       type: 'object' as const,
       properties: {
         owner_id:   { type: 'string', description: 'Filter by owner user ID, or "me" for current user (optional)' },
-        issue_id:   { type: 'string', description: 'Filter by issue ID (optional)' },
+        issue_id:   { type: 'string', description: 'Filter by issue slug (e.g. POY-10) or UUID (optional)' },
         project_id: { type: 'string', description: 'Filter by project ID (optional)' },
         sprint_id:  { type: 'string', description: 'Filter by sprint ID (optional)' },
         status:     { type: 'string', description: 'Filter by status (optional)' },
@@ -32,7 +32,7 @@ export const taskTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        issue_id:     { type: 'string', description: 'Issue ID to create the task under' },
+        issue_id:     { type: 'string', description: 'Issue slug (e.g. POY-10) or UUID to create the task under' },
         title:        { type: 'string', description: 'Task title' },
         owner_id:     { type: 'string', description: 'Owner user ID, or "me" (optional)' },
         reviewer_id:  { type: 'string', description: 'Reviewer user ID (optional)' },
@@ -90,6 +90,14 @@ async function resolveMe(client: CoyoteClient, value: string | undefined): Promi
   return value
 }
 
+async function resolveIssueId(client: CoyoteClient, value: string): Promise<string> {
+  if (/^[A-Z]+-\d+$/.test(value)) {
+    const issue = await client.get<{ id: string }>(`/api/issues/${value}`)
+    return issue.id
+  }
+  return value
+}
+
 export async function handleTask(name: string, args: Record<string, string | number | string[] | null | undefined>): Promise<string> {
   const client = new CoyoteClient()
 
@@ -97,7 +105,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     const query: Record<string, string> = {}
     const ownerId = await resolveMe(client, args.owner_id as string | undefined)
     if (ownerId)        query.owner_id   = ownerId
-    if (args.issue_id)  query.issue_id   = String(args.issue_id)
+    if (args.issue_id)  query.issue_id   = await resolveIssueId(client, String(args.issue_id))
     if (args.sprint_id) query.sprint_id  = String(args.sprint_id)
     if (args.project_id) query.project_id = String(args.project_id)
     if (args.status)    query.status     = String(args.status)
@@ -118,7 +126,7 @@ export async function handleTask(name: string, args: Record<string, string | num
   if (name === 'coyote_create_task') {
     const ownerId    = await resolveMe(client, args.owner_id as string | undefined)
     const body: Record<string, unknown> = {
-      issue_id: args.issue_id,
+      issue_id: await resolveIssueId(client, String(args.issue_id)),
       title: args.title,
     }
     if (ownerId)              body.owner_id     = ownerId
