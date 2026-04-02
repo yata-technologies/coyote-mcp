@@ -98,16 +98,17 @@ cd ~/work/coyote-mcp && git pull && npm run build
 
 | Category | Tools |
 |---|---|
-| Auth | `coyote_login`, `coyote_login_complete`, `coyote_get_me` |
-| Projects | `coyote_list_projects`, `coyote_list_members` |
+| Auth | `coyote_login`, `coyote_login_complete`, `coyote_get_me`, `coyote_upgrade` |
+| Projects | `coyote_list_projects`, `coyote_get_project`, `coyote_update_project`, `coyote_list_members` |
 | Issues | `coyote_list_issues`, `coyote_get_issue`, `coyote_create_issue`, `coyote_update_issue`, `coyote_delete_issue` |
 | Tasks | `coyote_list_tasks`, `coyote_get_task`, `coyote_create_task`, `coyote_update_task`, `coyote_delete_task` |
 | Worklogs | `coyote_list_worklogs`, `coyote_get_worklog`, `coyote_create_worklog`, `coyote_update_worklog`, `coyote_delete_worklog` |
-| Sprints | `coyote_list_sprints`, `coyote_create_sprint`, `coyote_update_sprint`, `coyote_delete_sprint` |
+| Sprints | `coyote_list_sprints`, `coyote_get_sprint`, `coyote_create_sprint`, `coyote_update_sprint`, `coyote_delete_sprint` |
 | Categories | `coyote_list_categories`, `coyote_create_category`, `coyote_update_category`, `coyote_delete_category` |
 | Phases | `coyote_list_phases`, `coyote_create_phase`, `coyote_update_phase`, `coyote_delete_phase` |
 | Activities | `coyote_list_activities`, `coyote_create_activity`, `coyote_update_activity`, `coyote_delete_activity` |
 | Members | `coyote_add_member`, `coyote_update_member_role`, `coyote_remove_member` |
+| Users | `coyote_list_users`, `coyote_list_vendors` |
 
 ---
 
