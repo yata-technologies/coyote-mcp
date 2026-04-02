@@ -54,6 +54,17 @@ export const sprintTools = [
       required: ['id'],
     },
   },
+  {
+    name: 'coyote_get_sprint',
+    description: 'Get details of a single sprint by ID.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        id: { type: 'string', description: 'Sprint ID' },
+      },
+      required: ['id'],
+    },
+  },
 ]
 
 type Sprint = {
@@ -107,6 +118,12 @@ export async function handleSprint(name: string, args: Record<string, string>): 
   if (name === 'coyote_delete_sprint') {
     await client.delete(`/api/sprints/${args.id}`)
     return `✅ Sprint deleted: ${args.id}`
+  }
+
+  if (name === 'coyote_get_sprint') {
+    const sprint = await client.get<Sprint>(`/api/sprints/${args.id}`)
+    const dateRange = sprint.start_date && sprint.end_date ? `${sprint.start_date}〜${sprint.end_date}` : 'no dates'
+    return `[${sprint.id}] ${sprint.name} (${sprint.sprint_type}, ${dateRange})`
   }
 
   throw new Error(`Unknown sprint tool: ${name}`)
