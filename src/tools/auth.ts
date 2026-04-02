@@ -38,7 +38,7 @@ export const authTools = [
     inputSchema: { type: 'object' as const, properties: {} },
   },
   {
-    name: 'coyote_update',
+    name: 'coyote_upgrade',
     description: 'Check for a new version of Coyote MCP and download it if available. Call this when any Coyote tool returns a 500 error, as that often indicates a version incompatibility between the MCP and the Coyote API.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
@@ -64,7 +64,7 @@ export async function handleAuth(name: string): Promise<string> {
     return await completeDeviceAuth()
   }
 
-  if (name === 'coyote_update') {
+  if (name === 'coyote_upgrade') {
     return await handleUpdate()
   }
 
@@ -108,7 +108,7 @@ async function checkUpdateNotice(): Promise<string> {
     if (latest && semverGt(latest, VERSION)) {
       return (
         `🆕 A new version of Coyote MCP (v${latest}) is available.\n` +
-        `Run \`coyote_update\` to download it and get installation instructions.`
+        `Run \`coyote_upgrade\` to download it and get installation instructions.`
       )
     }
   } catch { /* ignore */ }
