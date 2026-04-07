@@ -11,7 +11,8 @@ export const taskTools = [
         issue_id:   { type: 'string', description: 'Filter by issue slug (e.g. POY-10) or UUID (optional)' },
         project_id: { type: 'string', description: 'Filter by project ID (optional)' },
         sprint_id:  { type: 'string', description: 'Filter by sprint ID (optional)' },
-        status:     { type: 'string', description: 'Filter by status (optional)' },
+        status:      { type: 'string', description: 'Filter by status (optional)' },
+        category_id: { type: 'string', description: 'Filter by category ID (optional)' },
       },
     },
   },
@@ -41,6 +42,7 @@ export const taskTools = [
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
+        pattern_id:   { type: 'string', description: 'Pattern ID (optional). Use coyote_list_patterns to find IDs.' },
       },
       required: ['issue_id', 'title'],
     },
@@ -60,6 +62,7 @@ export const taskTools = [
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
+        pattern_id:   { type: ['string', 'null'], description: 'Pattern ID; pass null to clear (optional). Use coyote_list_patterns to find IDs.' },
       },
       required: ['slug'],
     },
@@ -106,9 +109,10 @@ export async function handleTask(name: string, args: Record<string, string | num
     const ownerId = await resolveMe(client, args.owner_id as string | undefined)
     if (ownerId)        query.owner_id   = ownerId
     if (args.issue_id)  query.issue_id   = await resolveIssueId(client, String(args.issue_id))
-    if (args.sprint_id) query.sprint_id  = String(args.sprint_id)
-    if (args.project_id) query.project_id = String(args.project_id)
-    if (args.status)    query.status     = String(args.status)
+    if (args.sprint_id)   query.sprint_id   = String(args.sprint_id)
+    if (args.project_id)  query.project_id  = String(args.project_id)
+    if (args.status)      query.status      = String(args.status)
+    if (args.category_id) query.category_id = String(args.category_id)
 
     const tasks = await client.get<Task[]>('/api/tasks', query)
     if (tasks.length === 0) return 'No tasks found.'
@@ -136,6 +140,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.status)          body.status       = args.status
     if (args.priority)        body.priority     = args.priority
     if (args.weight)          body.weight       = Number(args.weight)
+    if (args.pattern_id)      body.pattern_id   = args.pattern_id
 
     const task = await client.post<Task>('/api/tasks', body)
     return `✅ Task created: ${task.slug ?? task.id} — ${task.title}`
@@ -152,6 +157,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.status       !== undefined) body.status       = args.status
     if (args.priority     !== undefined) body.priority     = args.priority
     if (args.weight       !== undefined) body.weight       = Number(args.weight)
+    if (args.pattern_id   !== undefined) body.pattern_id   = args.pattern_id
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
     return `✅ Task updated: ${task.slug ?? task.id} — ${task.title} (status: ${task.status})`

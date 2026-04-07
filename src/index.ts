@@ -259,7 +259,7 @@ function sleep(ms: number): Promise<void> {
 
 const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools, ...memberTools, ...userTools]
 
-const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_login_complete', 'coyote_get_me', 'coyote_upgrade'])
+const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_login_complete', 'coyote_get_me', 'coyote_update_me', 'coyote_upgrade'])
 const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
 const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task', 'coyote_delete_task'])
 const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
@@ -267,6 +267,7 @@ const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_members', 'c
 const SPRINT_TOOLS  = new Set(['coyote_list_sprints', 'coyote_create_sprint', 'coyote_update_sprint', 'coyote_delete_sprint', 'coyote_get_sprint'])
 const USER_TOOLS    = new Set(['coyote_list_vendors', 'coyote_list_users'])
 const CONFIG_TOOLS  = new Set([
+  'coyote_list_patterns', 'coyote_get_pattern',
   'coyote_list_categories', 'coyote_create_category', 'coyote_update_category', 'coyote_delete_category',
   'coyote_list_phases', 'coyote_create_phase', 'coyote_update_phase', 'coyote_delete_phase',
   'coyote_list_activities', 'coyote_create_activity', 'coyote_update_activity', 'coyote_delete_activity',
@@ -292,7 +293,7 @@ async function startServer(): Promise<void> {
     try {
       let text: string
       if (AUTH_TOOLS.has(name)) {
-        text = await handleAuth(name)
+        text = await handleAuth(name, a as Record<string, string | null>)
       } else if (ISSUE_TOOLS.has(name)) {
         text = await handleIssue(name, a)
       } else if (TASK_TOOLS.has(name)) {

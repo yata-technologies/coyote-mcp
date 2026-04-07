@@ -42,6 +42,7 @@ export const issueTools = [
         level:       { type: 'string', description: 'Level (optional)' },
         weight:      { type: 'number', description: 'Effort weight (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
+        source_key:  { type: 'string', description: 'External source key for webhook/integration (e.g. Backlog issue key) (optional)' },
       },
       required: ['sprint_id', 'title'],
     },
@@ -62,6 +63,7 @@ export const issueTools = [
         level:       { type: 'string', description: 'Level (optional)' },
         weight:      { type: 'number', description: 'Effort weight (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
+        source_key:  { type: ['string', 'null'], description: 'External source key; pass null to clear (optional)' },
       },
       required: ['slug'],
     },
@@ -131,6 +133,7 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.level       !== undefined) body.level       = args.level
     if (args.weight      !== undefined) body.weight      = Number(args.weight)
     if (args.description !== undefined) body.description = args.description
+    if (args.source_key  !== undefined) body.source_key  = args.source_key
 
     const issue = await client.post<Issue>('/api/issues', body)
     return `✅ Issue created: ${issue.slug ?? issue.id} — ${issue.title}`
@@ -148,6 +151,7 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.level       !== undefined) body.level       = args.level
     if (args.weight      !== undefined) body.weight      = Number(args.weight)
     if (args.description !== undefined) body.description = args.description
+    if (args.source_key  !== undefined) body.source_key  = args.source_key
 
     const issue = await client.put<Issue>(`/api/issues/${args.slug}`, body)
     return `✅ Issue updated: ${issue.slug ?? issue.id} — ${issue.title} (status: ${issue.status})`
