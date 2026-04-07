@@ -38,13 +38,24 @@ export const authTools = [
     inputSchema: { type: 'object' as const, properties: {} },
   },
   {
+    name: 'coyote_update_me',
+    description: 'Update the current user\'s profile (name and/or title).',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        name:  { type: 'string', description: 'Display name (optional)' },
+        title: { type: 'string', description: 'Job title (optional)' },
+      },
+    },
+  },
+  {
     name: 'coyote_upgrade',
     description: 'Check for a new version of Coyote MCP and download it if available. Call this when any Coyote tool returns a 500 error, as that often indicates a version incompatibility between the MCP and the Coyote API.',
     inputSchema: { type: 'object' as const, properties: {} },
   },
 ]
 
-export async function handleAuth(name: string): Promise<string> {
+export async function handleAuth(name: string, args?: Record<string, string | null>): Promise<string> {
   if (name === 'coyote_get_me') {
     const client = new CoyoteClient()
     const [user, updateNotice] = await Promise.all([
@@ -62,6 +73,15 @@ export async function handleAuth(name: string): Promise<string> {
 
   if (name === 'coyote_login_complete') {
     return await completeDeviceAuth()
+  }
+
+  if (name === 'coyote_update_me') {
+    const client = new CoyoteClient()
+    const body: Record<string, unknown> = {}
+    if (args?.name  !== undefined) body.name  = args.name
+    if (args?.title !== undefined) body.title = args.title
+    const user = await client.put<{ name: string; email: string; title: string | null }>('/api/me', body)
+    return `✅ Profile updated: ${user.name} (${user.email})${user.title ? ` — ${user.title}` : ''}`
   }
 
   if (name === 'coyote_upgrade') {

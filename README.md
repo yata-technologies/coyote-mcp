@@ -98,7 +98,7 @@ cd ~/work/coyote-mcp && git pull && npm run build
 
 | Category | Tools |
 |---|---|
-| Auth | `coyote_login`, `coyote_login_complete`, `coyote_get_me`, `coyote_upgrade` |
+| Auth | `coyote_login`, `coyote_login_complete`, `coyote_get_me`, `coyote_update_me`, `coyote_upgrade` |
 | Projects | `coyote_list_projects`, `coyote_get_project`, `coyote_update_project`, `coyote_list_members` |
 | Issues | `coyote_list_issues`, `coyote_get_issue`, `coyote_create_issue`, `coyote_update_issue`, `coyote_delete_issue` |
 | Tasks | `coyote_list_tasks`, `coyote_get_task`, `coyote_create_task`, `coyote_update_task`, `coyote_delete_task` |
@@ -107,6 +107,7 @@ cd ~/work/coyote-mcp && git pull && npm run build
 | Categories | `coyote_list_categories`, `coyote_create_category`, `coyote_update_category`, `coyote_delete_category` |
 | Phases | `coyote_list_phases`, `coyote_create_phase`, `coyote_update_phase`, `coyote_delete_phase` |
 | Activities | `coyote_list_activities`, `coyote_create_activity`, `coyote_update_activity`, `coyote_delete_activity` |
+| Patterns | `coyote_list_patterns`, `coyote_get_pattern` |
 | Members | `coyote_add_member`, `coyote_update_member_role`, `coyote_remove_member` |
 | Users | `coyote_list_users`, `coyote_list_vendors` |
 

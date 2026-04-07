@@ -97,6 +97,29 @@ export const configTools = [
       required: ['id'],
     },
   },
+  // --- Patterns ---
+  {
+    name: 'coyote_list_patterns',
+    description: 'List patterns, optionally filtered by category or level.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        category: { type: 'string', description: 'Filter by category (optional)' },
+        level:    { type: 'string', description: 'Filter by level (optional)' },
+      },
+    },
+  },
+  {
+    name: 'coyote_get_pattern',
+    description: 'Get full details of a pattern by ID.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        id: { type: 'string', description: 'Pattern ID' },
+      },
+      required: ['id'],
+    },
+  },
   // --- Activities ---
   {
     name: 'coyote_list_activities',
@@ -156,9 +179,27 @@ export const configTools = [
 type Category = { id: string; name: string; sort_order: number; is_active: number }
 type Phase     = { id: string; name: string; sort_order: number; is_active: number }
 type Activity  = { id: string; name: string; phase: string | null; role: string | null; type: string | null; phase_id: string | null }
+type Pattern   = { id: string; pattern: string; pattern_ja?: string | null; category?: string | null; level?: string | null; description?: string | null; sample_url?: string | null }
 
 export async function handleConfig(name: string, args: Record<string, string | number | null>): Promise<string> {
   const client = new CoyoteClient()
+
+  // Patterns
+  if (name === 'coyote_list_patterns') {
+    const query: Record<string, string> = {}
+    if (args.category) query.category = String(args.category)
+    if (args.level)    query.level    = String(args.level)
+    const items = await client.get<Pattern[]>('/api/patterns', query)
+    if (items.length === 0) return 'No patterns found.'
+    return items.map(p =>
+      `[${p.id}] ${p.pattern}${p.pattern_ja ? ` (${p.pattern_ja})` : ''}${p.category ? ` — ${p.category}` : ''}${p.level ? ` [${p.level}]` : ''}`
+    ).join('\n')
+  }
+
+  if (name === 'coyote_get_pattern') {
+    const pattern = await client.get<Pattern>(`/api/patterns/${args.id}`)
+    return JSON.stringify(pattern, null, 2)
+  }
 
   // Categories
   if (name === 'coyote_list_categories') {
