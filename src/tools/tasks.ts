@@ -41,6 +41,7 @@ export const taskTools = [
         activity_ids: { type: 'array', items: { type: 'string' }, description: 'Activity IDs to associate with the task (optional). Use coyote_list_activities to find IDs.' },
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
+        description:  { type: 'string', description: 'Task description (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: 'string', description: 'Pattern ID (optional). Use coyote_list_patterns to find IDs.' },
       },
@@ -61,6 +62,7 @@ export const taskTools = [
         activity_ids: { type: 'array', items: { type: 'string' }, description: 'Activity IDs (full replacement). Omit to leave unchanged; pass [] to clear all (optional).' },
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
+        description:  { type: ['string', 'null'], description: 'Task description; pass null to clear (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: ['string', 'null'], description: 'Pattern ID; pass null to clear (optional). Use coyote_list_patterns to find IDs.' },
       },
@@ -140,6 +142,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.status)          body.status       = args.status
     if (args.priority)        body.priority     = args.priority
     if (args.weight)          body.weight       = Number(args.weight)
+    if (args.description)     body.description  = args.description
     if (args.pattern_id)      body.pattern_id   = args.pattern_id
 
     const task = await client.post<Task>('/api/tasks', body)
@@ -157,6 +160,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.status       !== undefined) body.status       = args.status
     if (args.priority     !== undefined) body.priority     = args.priority
     if (args.weight       !== undefined) body.weight       = Number(args.weight)
+    if (args.description  !== undefined) body.description  = args.description
     if (args.pattern_id   !== undefined) body.pattern_id   = args.pattern_id
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
