@@ -35,15 +35,17 @@ export const worklogTools = [
       type: 'object' as const,
       properties: {
         task_slug:   { type: 'string', description: 'Task slug, e.g. CHR-T1' },
-        minutes:     { type: 'number', description: 'Time spent in minutes' },
+        seconds:     { type: 'number', description: 'Time spent in seconds' },
         date:        { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
         start_time:  { type: 'string', description: 'HH:MM (optional)' },
-        note:               { type: 'string', description: 'Work description (optional)' },
+        end_time:    { type: 'string', description: 'HH:MM (optional)' },
+        description:        { type: 'string', description: 'Work description (optional)' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
-        time_human_minutes: { type: 'number', description: 'Human work time in minutes (optional). If provided with time_ai_minutes, they should sum to total minutes.' },
-        time_ai_minutes:    { type: 'number', description: 'AI work time in minutes (optional). If provided with time_human_minutes, they should sum to total minutes.' },
+        url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
+        time_human_seconds: { type: 'number', description: 'Human work time in seconds (optional). If provided with time_ai_seconds, they should sum to total seconds.' },
+        time_ai_seconds:    { type: 'number', description: 'AI work time in seconds (optional). If provided with time_human_seconds, they should sum to total seconds.' },
       },
-      required: ['task_slug', 'minutes'],
+      required: ['task_slug', 'seconds'],
     },
   },
   {
@@ -53,14 +55,15 @@ export const worklogTools = [
       type: 'object' as const,
       properties: {
         slug:        { type: 'string', description: 'Worklog slug, e.g. CHR-W3' },
-        minutes:     { type: 'number', description: 'Time spent in minutes (optional)' },
+        seconds:     { type: 'number', description: 'Time spent in seconds (optional)' },
         date:        { type: 'string', description: 'YYYY-MM-DD (optional)' },
         start_time:  { type: 'string', description: 'HH:MM (optional)' },
         end_time:    { type: 'string', description: 'HH:MM (optional)' },
-        note:               { type: 'string', description: 'Work description (optional)' },
+        description:        { type: 'string', description: 'Work description (optional)' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
-        time_human_minutes: { type: 'number', description: 'Human work time in minutes (optional).' },
-        time_ai_minutes:    { type: 'number', description: 'AI work time in minutes (optional).' },
+        url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
+        time_human_seconds: { type: 'number', description: 'Human work time in seconds (optional).' },
+        time_ai_seconds:    { type: 'number', description: 'AI work time in seconds (optional).' },
       },
       required: ['slug'],
     },
@@ -127,14 +130,16 @@ export async function handleWorklog(name: string, args: Record<string, string | 
     const today = new Date().toISOString().slice(0, 10)
     const body: Record<string, unknown> = {
       task_id: task.id,
-      seconds: Number(args.minutes) * 60,
+      seconds: Number(args.seconds),
       date: args.date ?? today,
     }
     if (args.start_time)  body.start_time  = args.start_time
-    if (args.note)        body.description = args.note
+    if (args.end_time)    body.end_time    = args.end_time
+    if (args.description) body.description = args.description
     if (args.activity_id)               body.activity_id       = args.activity_id
-    if (args.time_human_minutes !== undefined) body.time_human_seconds = Number(args.time_human_minutes) * 60
-    if (args.time_ai_minutes    !== undefined) body.time_ai_seconds    = Number(args.time_ai_minutes)    * 60
+    if (args.url)                       body.url               = args.url
+    if (args.time_human_seconds !== undefined) body.time_human_seconds = Number(args.time_human_seconds)
+    if (args.time_ai_seconds    !== undefined) body.time_ai_seconds    = Number(args.time_ai_seconds)
 
     const wl = await client.post<Worklog>('/api/worklogs', body)
     const mins = Math.round((wl.seconds as unknown as number) / 60)
@@ -143,14 +148,15 @@ export async function handleWorklog(name: string, args: Record<string, string | 
 
   if (name === 'coyote_update_worklog') {
     const body: Record<string, unknown> = {}
-    if (args.minutes     !== undefined) body.seconds     = Number(args.minutes) * 60
+    if (args.seconds     !== undefined) body.seconds     = Number(args.seconds)
     if (args.date        !== undefined) body.date        = args.date
     if (args.start_time  !== undefined) body.start_time  = args.start_time
     if (args.end_time    !== undefined) body.end_time    = args.end_time
-    if (args.note        !== undefined) body.description = args.note
+    if (args.description !== undefined) body.description = args.description
     if (args.activity_id        !== undefined) body.activity_id       = args.activity_id
-    if (args.time_human_minutes !== undefined) body.time_human_seconds = Number(args.time_human_minutes) * 60
-    if (args.time_ai_minutes    !== undefined) body.time_ai_seconds    = Number(args.time_ai_minutes)    * 60
+    if (args.url                !== undefined) body.url               = args.url
+    if (args.time_human_seconds !== undefined) body.time_human_seconds = Number(args.time_human_seconds)
+    if (args.time_ai_seconds    !== undefined) body.time_ai_seconds    = Number(args.time_ai_seconds)
 
     const wl = await client.put<Worklog>(`/api/worklogs/${args.slug}`, body)
     const mins = Math.round(wl.seconds / 60)
