@@ -40,8 +40,8 @@ export const issueTools = [
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
-        weight:      { type: 'number', description: 'Effort weight (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
+        url:         { type: 'string', description: 'Related URL (optional)' },
         source_key:  { type: 'string', description: 'External source key for webhook/integration (e.g. Backlog issue key) (optional)' },
       },
       required: ['sprint_id', 'title'],
@@ -61,8 +61,8 @@ export const issueTools = [
         status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
-        weight:      { type: 'number', description: 'Effort weight (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
+        url:         { type: ['string', 'null'], description: 'Related URL; pass null to clear (optional)' },
         source_key:  { type: ['string', 'null'], description: 'External source key; pass null to clear (optional)' },
       },
       required: ['slug'],
@@ -131,8 +131,8 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.status      !== undefined) body.status    = args.status
     if (args.priority    !== undefined) body.priority    = args.priority
     if (args.level       !== undefined) body.level       = args.level
-    if (args.weight      !== undefined) body.weight      = Number(args.weight)
     if (args.description !== undefined) body.description = args.description
+    if (args.url         !== undefined) body.url         = args.url
     if (args.source_key  !== undefined) body.source_key  = args.source_key
 
     const issue = await client.post<Issue>('/api/issues', body)
@@ -149,8 +149,8 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.status      !== undefined) body.status    = args.status
     if (args.priority    !== undefined) body.priority    = args.priority
     if (args.level       !== undefined) body.level       = args.level
-    if (args.weight      !== undefined) body.weight      = Number(args.weight)
     if (args.description !== undefined) body.description = args.description
+    if (args.url         !== undefined) body.url         = args.url
     if (args.source_key  !== undefined) body.source_key  = args.source_key
 
     const issue = await client.put<Issue>(`/api/issues/${args.slug}`, body)
