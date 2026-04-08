@@ -38,8 +38,10 @@ export const worklogTools = [
         seconds:     { type: 'number', description: 'Time spent in seconds' },
         date:        { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
         start_time:  { type: 'string', description: 'HH:MM (optional)' },
-        note:               { type: 'string', description: 'Work description (optional)' },
+        end_time:    { type: 'string', description: 'HH:MM (optional)' },
+        description:        { type: 'string', description: 'Work description (optional)' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
+        url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
         time_human_seconds: { type: 'number', description: 'Human work time in seconds (optional). If provided with time_ai_seconds, they should sum to total seconds.' },
         time_ai_seconds:    { type: 'number', description: 'AI work time in seconds (optional). If provided with time_human_seconds, they should sum to total seconds.' },
       },
@@ -57,8 +59,9 @@ export const worklogTools = [
         date:        { type: 'string', description: 'YYYY-MM-DD (optional)' },
         start_time:  { type: 'string', description: 'HH:MM (optional)' },
         end_time:    { type: 'string', description: 'HH:MM (optional)' },
-        note:               { type: 'string', description: 'Work description (optional)' },
+        description:        { type: 'string', description: 'Work description (optional)' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
+        url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
         time_human_seconds: { type: 'number', description: 'Human work time in seconds (optional).' },
         time_ai_seconds:    { type: 'number', description: 'AI work time in seconds (optional).' },
       },
@@ -131,8 +134,10 @@ export async function handleWorklog(name: string, args: Record<string, string | 
       date: args.date ?? today,
     }
     if (args.start_time)  body.start_time  = args.start_time
-    if (args.note)        body.description = args.note
+    if (args.end_time)    body.end_time    = args.end_time
+    if (args.description) body.description = args.description
     if (args.activity_id)               body.activity_id       = args.activity_id
+    if (args.url)                       body.url               = args.url
     if (args.time_human_seconds !== undefined) body.time_human_seconds = Number(args.time_human_seconds)
     if (args.time_ai_seconds    !== undefined) body.time_ai_seconds    = Number(args.time_ai_seconds)
 
@@ -147,8 +152,9 @@ export async function handleWorklog(name: string, args: Record<string, string | 
     if (args.date        !== undefined) body.date        = args.date
     if (args.start_time  !== undefined) body.start_time  = args.start_time
     if (args.end_time    !== undefined) body.end_time    = args.end_time
-    if (args.note        !== undefined) body.description = args.note
+    if (args.description !== undefined) body.description = args.description
     if (args.activity_id        !== undefined) body.activity_id       = args.activity_id
+    if (args.url                !== undefined) body.url               = args.url
     if (args.time_human_seconds !== undefined) body.time_human_seconds = Number(args.time_human_seconds)
     if (args.time_ai_seconds    !== undefined) body.time_ai_seconds    = Number(args.time_ai_seconds)
 
