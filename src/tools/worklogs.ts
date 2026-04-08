@@ -37,7 +37,7 @@ export const worklogTools = [
         task_slug:   { type: 'string', description: 'Task slug, e.g. CHR-T1' },
         seconds:     { type: 'number', description: 'Time spent in seconds' },
         date:        { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
-        start_time:  { type: 'string', description: 'HH:MM (optional)' },
+        start_time:  { type: 'string', description: 'HH:MM, defaults to current time' },
         end_time:    { type: 'string', description: 'HH:MM (optional)' },
         description:        { type: 'string', description: 'Work description (optional)' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
@@ -128,12 +128,14 @@ export async function handleWorklog(name: string, args: Record<string, string | 
   if (name === 'coyote_create_worklog') {
     const task = await client.get<{ id: string; title: string }>(`/api/tasks/${args.task_slug}`)
     const today = new Date().toISOString().slice(0, 10)
+    const now = new Date()
+    const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
     const body: Record<string, unknown> = {
       task_id: task.id,
       seconds: Number(args.seconds),
       date: args.date ?? today,
+      start_time: args.start_time ?? hhmm,
     }
-    if (args.start_time)  body.start_time  = args.start_time
     if (args.end_time)    body.end_time    = args.end_time
     if (args.description) body.description = args.description
     if (args.activity_id)               body.activity_id       = args.activity_id
