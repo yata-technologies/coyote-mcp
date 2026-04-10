@@ -21,7 +21,6 @@ export const configTools = [
       properties: {
         project_id: { type: 'string', description: 'Project ID' },
         name:       { type: 'string', description: 'Category name' },
-        sort_order: { type: 'number', description: 'Sort order (optional)' },
       },
       required: ['project_id', 'name'],
     },
@@ -32,10 +31,9 @@ export const configTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        id:         { type: 'string', description: 'Category ID' },
-        name:       { type: 'string', description: 'Category name (optional)' },
-        sort_order: { type: 'number', description: 'Sort order (optional)' },
-        is_active:  { type: 'number', description: '1 = active, 0 = inactive (optional)' },
+        id:        { type: 'string', description: 'Category ID' },
+        name:      { type: 'string', description: 'Category name (optional)' },
+        is_active: { type: 'number', description: '1 = active, 0 = inactive (optional)' },
       },
       required: ['id'],
     },
@@ -71,7 +69,6 @@ export const configTools = [
       properties: {
         project_id: { type: 'string', description: 'Project ID' },
         name:       { type: 'string', description: 'Phase name' },
-        sort_order: { type: 'number', description: 'Sort order (optional)' },
       },
       required: ['project_id', 'name'],
     },
@@ -82,10 +79,9 @@ export const configTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        id:         { type: 'string', description: 'Phase ID' },
-        name:       { type: 'string', description: 'Phase name (optional)' },
-        sort_order: { type: 'number', description: 'Sort order (optional)' },
-        is_active:  { type: 'number', description: '1 = active, 0 = inactive (optional)' },
+        id:        { type: 'string', description: 'Phase ID' },
+        name:      { type: 'string', description: 'Phase name (optional)' },
+        is_active: { type: 'number', description: '1 = active, 0 = inactive (optional)' },
       },
       required: ['id'],
     },
@@ -298,17 +294,14 @@ export async function handleConfig(name: string, args: Record<string, string | n
   }
 
   if (name === 'coyote_create_category') {
-    const body: Record<string, unknown> = { project_id: args.project_id, name: args.name }
-    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
-    const item = await client.post<Category>('/api/categories', body)
+    const item = await client.post<Category>('/api/categories', { project_id: args.project_id, name: args.name })
     return `✅ Category created: [${item.id}] ${item.name}`
   }
 
   if (name === 'coyote_update_category') {
     const body: Record<string, unknown> = {}
-    if (args.name       !== undefined) body.name       = args.name
-    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
-    if (args.is_active  !== undefined) body.is_active  = Number(args.is_active)
+    if (args.name      !== undefined) body.name      = args.name
+    if (args.is_active !== undefined) body.is_active = Number(args.is_active)
     const item = await client.put<Category>(`/api/categories/${args.id}`, body)
     return `✅ Category updated: [${item.id}] ${item.name}`
   }
@@ -326,17 +319,14 @@ export async function handleConfig(name: string, args: Record<string, string | n
   }
 
   if (name === 'coyote_create_phase') {
-    const body: Record<string, unknown> = { project_id: args.project_id, name: args.name }
-    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
-    const item = await client.post<Phase>('/api/phases', body)
+    const item = await client.post<Phase>('/api/phases', { project_id: args.project_id, name: args.name })
     return `✅ Phase created: [${item.id}] ${item.name}`
   }
 
   if (name === 'coyote_update_phase') {
     const body: Record<string, unknown> = {}
-    if (args.name       !== undefined) body.name       = args.name
-    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
-    if (args.is_active  !== undefined) body.is_active  = Number(args.is_active)
+    if (args.name      !== undefined) body.name      = args.name
+    if (args.is_active !== undefined) body.is_active = Number(args.is_active)
     const item = await client.put<Phase>(`/api/phases/${args.id}`, body)
     return `✅ Phase updated: [${item.id}] ${item.name}`
   }
