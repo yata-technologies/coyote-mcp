@@ -35,17 +35,18 @@ export const worklogTools = [
       type: 'object' as const,
       properties: {
         task_slug:   { type: 'string', description: 'Task slug, e.g. CHR-T1' },
+        owner_id:    { type: 'string', description: 'Owner user ID, or "me" for current user (defaults to "me")' },
         seconds:     { type: 'number', description: 'Time spent in seconds' },
         date:        { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
         start_time:  { type: 'string', description: 'HH:MM, defaults to current time' },
         end_time:    { type: 'string', description: 'HH:MM (optional)' },
-        description:        { type: 'string', description: 'Work description (optional)' },
+        description:        { type: 'string', description: 'Work description' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
         url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
         time_human_seconds: { type: 'number', description: 'Human work time in seconds (optional). If provided with time_ai_seconds, they should sum to total seconds.' },
         time_ai_seconds:    { type: 'number', description: 'AI work time in seconds (optional). If provided with time_human_seconds, they should sum to total seconds.' },
       },
-      required: ['task_slug', 'seconds'],
+      required: ['task_slug', 'seconds', 'description'],
     },
   },
   {
@@ -55,6 +56,7 @@ export const worklogTools = [
       type: 'object' as const,
       properties: {
         slug:        { type: 'string', description: 'Worklog slug, e.g. CHR-W3' },
+        task_slug:   { type: 'string', description: 'Move worklog to a different task by slug, e.g. CHR-T2 (optional)' },
         seconds:     { type: 'number', description: 'Time spent in seconds (optional)' },
         date:        { type: 'string', description: 'YYYY-MM-DD (optional)' },
         start_time:  { type: 'string', description: 'HH:MM (optional)' },
@@ -126,12 +128,19 @@ export async function handleWorklog(name: string, args: Record<string, string | 
   }
 
   if (name === 'coyote_create_worklog') {
-    const task = await client.get<{ id: string; title: string }>(`/api/tasks/${args.task_slug}`)
+    const ownerRaw = (args.owner_id as string | undefined) ?? 'me'
+    const [task, ownerId] = await Promise.all([
+      client.get<{ id: string; title: string }>(`/api/tasks/${args.task_slug}`),
+      ownerRaw === 'me'
+        ? client.get<{ id: string }>('/api/me').then(u => u.id)
+        : Promise.resolve(ownerRaw),
+    ])
     const today = new Date().toISOString().slice(0, 10)
     const now = new Date()
     const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
     const body: Record<string, unknown> = {
       task_id: task.id,
+      owner_id: ownerId,
       seconds: Number(args.seconds),
       date: args.date ?? today,
       start_time: args.start_time ?? hhmm,
@@ -150,6 +159,10 @@ export async function handleWorklog(name: string, args: Record<string, string | 
 
   if (name === 'coyote_update_worklog') {
     const body: Record<string, unknown> = {}
+    if (args.task_slug) {
+      const task = await client.get<{ id: string }>(`/api/tasks/${args.task_slug}`)
+      body.task_id = task.id
+    }
     if (args.seconds     !== undefined) body.seconds     = Number(args.seconds)
     if (args.date        !== undefined) body.date        = args.date
     if (args.start_time  !== undefined) body.start_time  = args.start_time
