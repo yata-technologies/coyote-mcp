@@ -120,31 +120,88 @@ export const configTools = [
       required: ['id'],
     },
   },
+  {
+    name: 'coyote_create_pattern',
+    description: 'Create a new work pattern template.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        pattern:     { type: 'string', description: 'Pattern name (English)' },
+        pattern_ja:  { type: 'string', description: 'Pattern name (Japanese) (optional)' },
+        category:    { type: 'string', description: 'Category (optional)' },
+        level:       { type: 'string', description: 'Level (optional)' },
+        description: { type: 'string', description: 'Description (optional)' },
+        sample_url:  { type: 'string', description: 'Sample URL (optional)' },
+      },
+      required: ['pattern'],
+    },
+  },
+  {
+    name: 'coyote_update_pattern',
+    description: 'Update a pattern by ID.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        id:          { type: 'string', description: 'Pattern ID' },
+        pattern:     { type: 'string', description: 'Pattern name (English) (optional)' },
+        pattern_ja:  { type: 'string', description: 'Pattern name (Japanese) (optional)' },
+        category:    { type: 'string', description: 'Category (optional)' },
+        level:       { type: 'string', description: 'Level (optional)' },
+        description: { type: 'string', description: 'Description (optional)' },
+        sample_url:  { type: 'string', description: 'Sample URL (optional)' },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'coyote_delete_pattern',
+    description: 'Delete a pattern by ID.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        id: { type: 'string', description: 'Pattern ID' },
+      },
+      required: ['id'],
+    },
+  },
   // --- Activities ---
   {
     name: 'coyote_list_activities',
-    description: 'List activities, optionally filtered by project or phase.',
+    description: 'List activities, optionally filtered by project, phase, or type.',
     inputSchema: {
       type: 'object' as const,
       properties: {
         project_id: { type: 'string', description: 'Filter by project ID (optional)' },
         phase_id:   { type: 'string', description: 'Filter by phase ID (optional)' },
+        phase:      { type: 'string', description: 'Filter by phase label (optional)' },
+        type:       { type: 'string', description: 'Filter by type: Development | Review | Management | Admin (optional)' },
       },
     },
   },
   {
     name: 'coyote_create_activity',
-    description: 'Create a new activity under a phase. Requires project admin or manager role.',
+    description: 'Create a new activity. Requires project admin or manager role.',
     inputSchema: {
       type: 'object' as const,
       properties: {
-        phase_id: { type: 'string', description: 'Phase ID' },
         name:     { type: 'string', description: 'Activity name' },
-        phase:    { type: 'string', description: 'Phase label (e.g. コーディング)' },
+        phase:    { type: 'string', description: 'Phase label (e.g. コーディング) (optional)' },
+        phase_id: { type: 'string', description: 'Phase ID (optional)' },
         role:     { type: 'string', description: 'Role (e.g. Dev, PM, BrSE) (optional)' },
-        type:     { type: 'string', description: 'Activity type (e.g. development, review) (optional)' },
+        type:     { type: 'string', description: 'Activity type: Development | Review | Management | Admin (optional)' },
       },
-      required: ['phase_id', 'name', 'phase'],
+      required: ['name'],
+    },
+  },
+  {
+    name: 'coyote_get_activity',
+    description: 'Get full details of an activity by ID.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        id: { type: 'string', description: 'Activity ID' },
+      },
+      required: ['id'],
     },
   },
   {
@@ -201,6 +258,34 @@ export async function handleConfig(name: string, args: Record<string, string | n
     return JSON.stringify(pattern, null, 2)
   }
 
+  if (name === 'coyote_create_pattern') {
+    const body: Record<string, unknown> = { pattern: args.pattern }
+    if (args.pattern_ja  !== undefined) body.pattern_ja  = args.pattern_ja
+    if (args.category    !== undefined) body.category    = args.category
+    if (args.level       !== undefined) body.level       = args.level
+    if (args.description !== undefined) body.description = args.description
+    if (args.sample_url  !== undefined) body.sample_url  = args.sample_url
+    const item = await client.post<Pattern>('/api/patterns', body)
+    return `✅ Pattern created: [${item.id}] ${item.pattern}`
+  }
+
+  if (name === 'coyote_update_pattern') {
+    const body: Record<string, unknown> = {}
+    if (args.pattern     !== undefined) body.pattern     = args.pattern
+    if (args.pattern_ja  !== undefined) body.pattern_ja  = args.pattern_ja
+    if (args.category    !== undefined) body.category    = args.category
+    if (args.level       !== undefined) body.level       = args.level
+    if (args.description !== undefined) body.description = args.description
+    if (args.sample_url  !== undefined) body.sample_url  = args.sample_url
+    const item = await client.put<Pattern>(`/api/patterns/${args.id}`, body)
+    return `✅ Pattern updated: [${item.id}] ${item.pattern}`
+  }
+
+  if (name === 'coyote_delete_pattern') {
+    await client.delete(`/api/patterns/${args.id}`)
+    return `✅ Pattern deleted: ${args.id}`
+  }
+
   // Categories
   if (name === 'coyote_list_categories') {
     const items = await client.get<Category[]>('/api/categories', { project_id: String(args.project_id) })
@@ -215,7 +300,7 @@ export async function handleConfig(name: string, args: Record<string, string | n
 
   if (name === 'coyote_update_category') {
     const body: Record<string, unknown> = {}
-    if (args.name !== undefined)      body.name      = args.name
+    if (args.name      !== undefined) body.name      = args.name
     if (args.is_active !== undefined) body.is_active = Number(args.is_active)
     const item = await client.put<Category>(`/api/categories/${args.id}`, body)
     return `✅ Category updated: [${item.id}] ${item.name}`
@@ -240,7 +325,7 @@ export async function handleConfig(name: string, args: Record<string, string | n
 
   if (name === 'coyote_update_phase') {
     const body: Record<string, unknown> = {}
-    if (args.name !== undefined)      body.name      = args.name
+    if (args.name      !== undefined) body.name      = args.name
     if (args.is_active !== undefined) body.is_active = Number(args.is_active)
     const item = await client.put<Phase>(`/api/phases/${args.id}`, body)
     return `✅ Phase updated: [${item.id}] ${item.name}`
@@ -256,6 +341,8 @@ export async function handleConfig(name: string, args: Record<string, string | n
     const query: Record<string, string> = {}
     if (args.project_id) query.project_id = String(args.project_id)
     if (args.phase_id)   query.phase_id   = String(args.phase_id)
+    if (args.phase)      query.phase      = String(args.phase)
+    if (args.type)       query.type       = String(args.type)
     const items = await client.get<Activity[]>('/api/activities', query)
     if (items.length === 0) return 'No activities found.'
     return items.map(a =>
@@ -263,11 +350,17 @@ export async function handleConfig(name: string, args: Record<string, string | n
     ).join('\n')
   }
 
+  if (name === 'coyote_get_activity') {
+    const item = await client.get<Activity>(`/api/activities/${args.id}`)
+    return JSON.stringify(item, null, 2)
+  }
+
   if (name === 'coyote_create_activity') {
-    const body: Record<string, unknown> = { phase_id: args.phase_id, name: args.name }
-    if (args.phase) body.phase = args.phase
-    if (args.role)  body.role  = args.role
-    if (args.type)  body.type  = args.type
+    const body: Record<string, unknown> = { name: args.name }
+    if (args.phase_id) body.phase_id = args.phase_id
+    if (args.phase)    body.phase    = args.phase
+    if (args.role)     body.role     = args.role
+    if (args.type)     body.type     = args.type
     const item = await client.post<Activity>('/api/activities', body)
     return `✅ Activity created: [${item.id}] ${item.name}`
   }

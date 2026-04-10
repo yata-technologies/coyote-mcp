@@ -29,14 +29,39 @@ export const projectTools = [
     },
   },
   {
+    name: 'coyote_create_project',
+    description: 'Create a new project. Requires system admin role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        name:        { type: 'string', description: 'Project name' },
+        key:         { type: 'string', description: 'Project key (e.g. CHR). Auto-generated if omitted.' },
+        description: { type: 'string', description: 'Project description (optional)' },
+      },
+      required: ['name'],
+    },
+  },
+  {
     name: 'coyote_update_project',
-    description: 'Update a project. Requires project admin or manager role.',
+    description: 'Update a project. Requires system admin role.',
     inputSchema: {
       type: 'object' as const,
       properties: {
         id:          { type: 'string', description: 'Project ID' },
         name:        { type: 'string', description: 'Project name (optional)' },
+        key:         { type: 'string', description: 'Project key (optional)' },
         description: { type: 'string', description: 'Project description (optional)' },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'coyote_delete_project',
+    description: 'Delete a project. Requires system admin role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        id: { type: 'string', description: 'Project ID' },
       },
       required: ['id'],
     },
@@ -68,13 +93,27 @@ export async function handleProject(name: string, args: Record<string, string>):
     return `[${project.key}] ${project.name} (id: ${project.id})${project.description ? `\n${project.description}` : ''}`
   }
 
+  if (name === 'coyote_create_project') {
+    const body: Record<string, unknown> = { name: args.name }
+    if (args.key)         body.key         = args.key
+    if (args.description) body.description = args.description
+    const project = await client.post<Project>('/api/projects', body)
+    return `✅ Project created: [${project.key}] ${project.name} (id: ${project.id})`
+  }
+
   if (name === 'coyote_update_project') {
     const body: Record<string, unknown> = {}
     if (args.name)        body.name        = args.name
+    if (args.key)         body.key         = args.key
     if (args.description) body.description = args.description
 
     const project = await client.put<Project>(`/api/projects/${args.id}`, body)
     return `✅ Project updated: [${project.key}] ${project.name} (id: ${project.id})`
+  }
+
+  if (name === 'coyote_delete_project') {
+    await client.delete(`/api/projects/${args.id}`)
+    return `✅ Project deleted: ${args.id}`
   }
 
   throw new Error(`Unknown project tool: ${name}`)

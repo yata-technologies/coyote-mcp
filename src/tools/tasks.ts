@@ -42,8 +42,10 @@ export const taskTools = [
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         description:  { type: 'string', description: 'Task description (optional)' },
+        url:          { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: 'string', description: 'Pattern ID (optional). Use coyote_list_patterns to find IDs.' },
+        category:     { type: 'string', description: 'Category name (optional, alternative to category_id)' },
       },
       required: ['issue_id', 'title'],
     },
@@ -63,8 +65,10 @@ export const taskTools = [
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
         priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         description:  { type: ['string', 'null'], description: 'Task description; pass null to clear (optional)' },
+        url:          { type: ['string', 'null'], description: 'Related URL; pass null to clear (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: ['string', 'null'], description: 'Pattern ID; pass null to clear (optional). Use coyote_list_patterns to find IDs.' },
+        category:     { type: ['string', 'null'], description: 'Category name; pass null to clear (optional)' },
       },
       required: ['slug'],
     },
@@ -143,7 +147,9 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.priority)        body.priority     = args.priority
     if (args.weight)          body.weight       = Number(args.weight)
     if (args.description)     body.description  = args.description
+    if (args.url)             body.url          = args.url
     if (args.pattern_id)      body.pattern_id   = args.pattern_id
+    if (args.category)        body.category     = args.category
 
     const task = await client.post<Task>('/api/tasks', body)
     return `✅ Task created: ${task.slug ?? task.id} — ${task.title}`
@@ -161,7 +167,9 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.priority     !== undefined) body.priority     = args.priority
     if (args.weight       !== undefined) body.weight       = Number(args.weight)
     if (args.description  !== undefined) body.description  = args.description
+    if (args.url          !== undefined) body.url          = args.url
     if (args.pattern_id   !== undefined) body.pattern_id   = args.pattern_id
+    if (args.category     !== undefined) body.category     = args.category
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
     return `✅ Task updated: ${task.slug ?? task.id} — ${task.title} (status: ${task.status})`

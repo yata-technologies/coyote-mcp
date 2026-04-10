@@ -37,12 +37,11 @@ export const issueTools = [
         title:       { type: 'string', description: 'Issue title' },
         category:    { type: 'string', description: 'Category name (optional)' },
         owner_id:    { type: 'string', description: 'Owner user ID, or "me" (optional). Vendor is auto-set from owner.' },
-        status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
+        status:      { type: 'string', description: 'Status: not_started | in_progress | review | pending | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: 'string', description: 'Related URL (optional)' },
-        source_key:  { type: 'string', description: 'External source key for webhook/integration (e.g. Backlog issue key) (optional)' },
       },
       required: ['sprint_id', 'title'],
     },
@@ -58,12 +57,11 @@ export const issueTools = [
         title:       { type: 'string', description: 'Issue title (optional)' },
         category:    { type: 'string', description: 'Category name (optional)' },
         owner_id:    { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional). Vendor is auto-set from owner.' },
-        status:      { type: 'string', description: 'Status: not_started | in_progress | complete | cancelled (optional)' },
+        status:      { type: 'string', description: 'Status: not_started | in_progress | review | pending | complete | cancelled (optional)' },
         priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: ['string', 'null'], description: 'Related URL; pass null to clear (optional)' },
-        source_key:  { type: ['string', 'null'], description: 'External source key; pass null to clear (optional)' },
       },
       required: ['slug'],
     },
@@ -133,7 +131,6 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.level       !== undefined) body.level       = args.level
     if (args.description !== undefined) body.description = args.description
     if (args.url         !== undefined) body.url         = args.url
-    if (args.source_key  !== undefined) body.source_key  = args.source_key
 
     const issue = await client.post<Issue>('/api/issues', body)
     return `✅ Issue created: ${issue.slug ?? issue.id} — ${issue.title}`
@@ -151,7 +148,6 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.level       !== undefined) body.level       = args.level
     if (args.description !== undefined) body.description = args.description
     if (args.url         !== undefined) body.url         = args.url
-    if (args.source_key  !== undefined) body.source_key  = args.source_key
 
     const issue = await client.put<Issue>(`/api/issues/${args.slug}`, body)
     return `✅ Issue updated: ${issue.slug ?? issue.id} — ${issue.title} (status: ${issue.status})`

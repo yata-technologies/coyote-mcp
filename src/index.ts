@@ -263,14 +263,14 @@ const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_login_complete', 'coyote_
 const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
 const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task', 'coyote_delete_task'])
 const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
-const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_members', 'coyote_get_project', 'coyote_update_project'])
+const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_members', 'coyote_get_project', 'coyote_create_project', 'coyote_update_project', 'coyote_delete_project'])
 const SPRINT_TOOLS  = new Set(['coyote_list_sprints', 'coyote_create_sprint', 'coyote_update_sprint', 'coyote_delete_sprint', 'coyote_get_sprint'])
-const USER_TOOLS    = new Set(['coyote_list_vendors', 'coyote_list_users'])
+const USER_TOOLS    = new Set(['coyote_list_vendors', 'coyote_create_vendor', 'coyote_update_vendor', 'coyote_delete_vendor', 'coyote_list_users', 'coyote_get_user', 'coyote_create_user', 'coyote_update_user', 'coyote_deactivate_user', 'coyote_reactivate_user'])
 const CONFIG_TOOLS  = new Set([
-  'coyote_list_patterns', 'coyote_get_pattern',
+  'coyote_list_patterns', 'coyote_get_pattern', 'coyote_create_pattern', 'coyote_update_pattern', 'coyote_delete_pattern',
   'coyote_list_categories', 'coyote_create_category', 'coyote_update_category', 'coyote_delete_category',
   'coyote_list_phases', 'coyote_create_phase', 'coyote_update_phase', 'coyote_delete_phase',
-  'coyote_list_activities', 'coyote_create_activity', 'coyote_update_activity', 'coyote_delete_activity',
+  'coyote_list_activities', 'coyote_get_activity', 'coyote_create_activity', 'coyote_update_activity', 'coyote_delete_activity',
 ])
 const MEMBER_TOOLS  = new Set(['coyote_add_member', 'coyote_update_member_role', 'coyote_remove_member'])
 
