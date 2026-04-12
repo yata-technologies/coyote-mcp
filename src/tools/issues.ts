@@ -38,7 +38,7 @@ export const issueTools = [
         category:    { type: 'string', description: 'Category name (optional)' },
         owner_id:    { type: 'string', description: 'Owner user ID, or "me" (optional). Vendor is auto-set from owner.' },
         status:      { type: 'string', description: 'Status: not_started | in_progress | review | pending | complete | cancelled (optional)' },
-        priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
+        priority:    { type: 'string', description: 'Priority: Low | Mid | High (optional, defaults to Mid)' },
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: 'string', description: 'Related URL (optional)' },

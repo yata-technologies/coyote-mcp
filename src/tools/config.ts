@@ -185,8 +185,8 @@ export const configTools = [
       type: 'object' as const,
       properties: {
         name:     { type: 'string', description: 'Activity name' },
-        phase:    { type: 'string', description: 'Phase label (e.g. コーディング) (optional)' },
-        phase_id: { type: 'string', description: 'Phase ID (optional)' },
+        phase:    { type: 'string', description: 'Phase label (e.g. コーディング). Auto-resolved from phase_id if omitted (optional)' },
+        phase_id: { type: 'string', description: 'Phase ID. If provided without phase, the label is auto-resolved (optional)' },
         role:     { type: 'string', description: 'Role (e.g. Dev, PM, BrSE) (optional)' },
         type:     { type: 'string', description: 'Activity type: Development | Review | Management | Admin (optional)' },
       },
