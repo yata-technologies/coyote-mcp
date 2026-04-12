@@ -40,7 +40,7 @@ export const taskTools = [
         category_id:  { type: 'string', description: 'Category ID (optional)' },
         activity_ids: { type: 'array', items: { type: 'string' }, description: 'Activity IDs to associate with the task (optional). Use coyote_list_activities to find IDs.' },
         status:       { type: 'string', description: 'Status: not_started | in_progress | review | complete | cancelled (optional)' },
-        priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional)' },
+        priority:     { type: 'string', description: 'Priority: Low | Mid | High (optional, defaults to Mid)' },
         description:  { type: 'string', description: 'Task description (optional)' },
         url:          { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
         weight:       { type: 'number', description: 'Effort weight (optional)' },
@@ -124,7 +124,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (tasks.length === 0) return 'No tasks found.'
 
     return tasks.map(t =>
-      `[${t.slug ?? t.id}] ${t.title} — status: ${t.status}${t.priority ? `, priority: ${t.priority}` : ''}`
+      `[${t.slug ?? t.id}] ${t.title} — status: ${t.status}${t.priority ? `, priority: ${t.priority}` : ''}${t.phase ? `, phase: ${t.phase}` : ''}`
     ).join('\n')
   }
 
