@@ -7,7 +7,7 @@ import { createRequire } from 'module'
 import { writeToken, readToken } from '../lib/token.js'
 import { CoyoteClient } from '../lib/client.js'
 
-const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
+const BASE_URL = 'https://api.coyote-worklog.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const IS_GIT_REPO = existsSync(join(__dirname, '..', '.git'))
 const PENDING_AUTH_FILE = join(homedir(), '.coyote', 'pending-auth.json')

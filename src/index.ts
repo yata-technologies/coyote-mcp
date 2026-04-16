@@ -30,7 +30,7 @@ const REPO_DIR = join(__dirname, '..')
 const BUILD_PENDING_FILE = join(homedir(), '.coyote', 'build-pending')
 const IS_GIT_REPO = existsSync(join(REPO_DIR, '.git'))
 const VERSION: string = (createRequire(import.meta.url)('../package.json') as { version: string }).version
-const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
+const BASE_URL = 'https://api.coyote-worklog.com'
 
 // --- Auto-update helpers ---
 

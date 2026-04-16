@@ -37,7 +37,7 @@
                     D1 Database（Cloudflare）
 ```
 
-**本番 API URL:** `https://coyote-api.yata-nakata.workers.dev`
+**本番 API URL:** `https://api.coyote-worklog.com`
 
 MCP サーバーはユーザーのローカルマシン上で動作し、Claude Code の stdio 経由で通信する。Coyote API への接続には `~/.coyote/token` に格納された Bearer トークン（`coy_xxx` 形式）を使用する。
 
