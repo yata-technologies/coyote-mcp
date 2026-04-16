@@ -1,7 +1,7 @@
 import { readToken } from './token.js'
 import { createRequire } from 'module'
 
-const BASE_URL = 'https://coyote-api.yata-nakata.workers.dev'
+const BASE_URL = 'https://api.coyote-worklog.com'
 const VERSION: string = (createRequire(import.meta.url)('../../package.json') as { version: string }).version
 const VERSION_MISMATCH_HINT = ' — If this is a version compatibility issue, call coyote_update to install the latest version.'
 
