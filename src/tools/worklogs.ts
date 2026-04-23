@@ -38,8 +38,8 @@ export const worklogTools = [
         owner_id:    { type: 'string', description: 'Owner user ID, or "me" for current user (defaults to "me")' },
         seconds:     { type: 'number', description: 'Time spent in seconds' },
         date:        { type: 'string', description: 'YYYY-MM-DD, defaults to today' },
-        start_time:  { type: 'string', description: 'HH:MM, defaults to current time' },
-        end_time:    { type: 'string', description: 'HH:MM (optional)' },
+        start_time:  { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'HH:MM or HH:MM:SS, defaults to current time' },
+        end_time:    { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'HH:MM or HH:MM:SS (optional)' },
         description:        { type: 'string', description: 'Work description' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
         url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
@@ -59,8 +59,8 @@ export const worklogTools = [
         task_slug:   { type: 'string', description: 'Move worklog to a different task by slug, e.g. CHR-T2 (optional)' },
         seconds:     { type: 'number', description: 'Time spent in seconds (optional)' },
         date:        { type: 'string', description: 'YYYY-MM-DD (optional)' },
-        start_time:  { type: 'string', description: 'HH:MM (optional)' },
-        end_time:    { type: 'string', description: 'HH:MM (optional)' },
+        start_time:  { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'HH:MM or HH:MM:SS (optional)' },
+        end_time:    { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'HH:MM or HH:MM:SS (optional)' },
         description:        { type: 'string', description: 'Work description (optional)' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
         url:                { type: 'string', description: 'Related URL, e.g. PR link (optional)' },
@@ -137,13 +137,16 @@ export async function handleWorklog(name: string, args: Record<string, string | 
     ])
     const today = new Date().toISOString().slice(0, 10)
     const now = new Date()
-    const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    const hh = String(now.getHours()).padStart(2, '0')
+    const mm = String(now.getMinutes()).padStart(2, '0')
+    const ss = String(now.getSeconds()).padStart(2, '0')
+    const hhmmss = `${hh}:${mm}:${ss}`
     const body: Record<string, unknown> = {
       task_id: task.id,
       owner_id: ownerId,
       seconds: Number(args.seconds),
       date: args.date ?? today,
-      start_time: args.start_time ?? hhmm,
+      start_time: args.start_time ?? hhmmss,
     }
     if (args.end_time)    body.end_time    = args.end_time
     if (args.description) body.description = args.description
