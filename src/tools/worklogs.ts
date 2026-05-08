@@ -3,7 +3,7 @@ import { CoyoteClient } from '../lib/client.js'
 export const worklogTools = [
   {
     name: 'coyote_list_worklogs',
-    description: 'List worklogs, optionally filtered by user, task, project, or date range.',
+    description: 'List worklogs, optionally filtered by user, task, project, date range, or keyword.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -14,6 +14,7 @@ export const worklogTools = [
         date:       { type: 'string', description: 'Filter by exact date YYYY-MM-DD (optional)' },
         date_from:  { type: 'string', description: 'Start date YYYY-MM-DD (optional)' },
         date_to:    { type: 'string', description: 'End date YYYY-MM-DD (optional)' },
+        q:          { type: 'string', description: 'Keyword search across description (optional). Worklogs have no title field. Multiple words AND-combine. Quote phrases like "login flow". Prefix - to exclude (e.g. auth -oauth, -"in progress"). Case-insensitive substring match. A single token matching <PROJECT_KEY>-W<digits> (e.g. COY-W3) is treated as an exact slug lookup. Combines with all other filters via AND.' },
       },
     },
   },
@@ -108,6 +109,7 @@ export async function handleWorklog(name: string, args: Record<string, string | 
     if (args.date)       query.date       = String(args.date)
     if (args.date_from)  query.date_from  = String(args.date_from)
     if (args.date_to)    query.date_to    = String(args.date_to)
+    if (args.q)          query.q          = String(args.q)
 
     const worklogs = await client.get<Worklog[]>('/api/worklogs', query)
     if (worklogs.length === 0) return 'No worklogs found.'

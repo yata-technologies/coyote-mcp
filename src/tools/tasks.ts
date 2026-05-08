@@ -3,7 +3,7 @@ import { CoyoteClient } from '../lib/client.js'
 export const taskTools = [
   {
     name: 'coyote_list_tasks',
-    description: 'List tasks, optionally filtered by owner, issue, project, sprint, or status.',
+    description: 'List tasks, optionally filtered by owner, issue, project, sprint, status, or keyword.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -13,6 +13,7 @@ export const taskTools = [
         sprint_id:  { type: 'string', description: 'Filter by sprint ID (optional)' },
         status:      { type: 'string', description: 'Filter by status (optional)' },
         category_id: { type: 'string', description: 'Filter by category ID (optional)' },
+        q:           { type: 'string', description: 'Keyword search across title and description (optional). Multiple words AND-combine. Quote phrases like "login flow". Prefix - to exclude (e.g. auth -oauth, -"in progress"). Case-insensitive substring match. A single token matching <PROJECT_KEY>-T<digits> (e.g. COY-T42) is treated as an exact slug lookup. Combines with all other filters via AND.' },
       },
     },
   },
@@ -119,6 +120,7 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.project_id)  query.project_id  = String(args.project_id)
     if (args.status)      query.status      = String(args.status)
     if (args.category_id) query.category_id = String(args.category_id)
+    if (args.q)           query.q           = String(args.q)
 
     const tasks = await client.get<Task[]>('/api/tasks', query)
     if (tasks.length === 0) return 'No tasks found.'

@@ -3,7 +3,7 @@ import { CoyoteClient } from '../lib/client.js'
 export const issueTools = [
   {
     name: 'coyote_list_issues',
-    description: 'List issues, optionally filtered by project, sprint, owner, or status.',
+    description: 'List issues, optionally filtered by project, sprint, owner, status, or keyword.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -13,6 +13,7 @@ export const issueTools = [
         status:     { type: 'string', description: 'Filter by status (optional)' },
         vendor:     { type: 'string', description: 'Filter by vendor name (optional)' },
         category:   { type: 'string', description: 'Filter by category name (optional)' },
+        q:          { type: 'string', description: 'Keyword search across title and description (optional). Multiple words AND-combine. Quote phrases like "login flow". Prefix - to exclude (e.g. auth -oauth, -"in progress"). Case-insensitive substring match. A single token matching <PROJECT_KEY>-<digits> (e.g. COY-42) is treated as an exact slug lookup. Combines with all other filters via AND.' },
       },
     },
   },
@@ -102,6 +103,7 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.status)      query.status      = String(args.status)
     if (args.vendor)      query.vendor      = String(args.vendor)
     if (args.category)    query.category    = String(args.category)
+    if (args.q)           query.q           = String(args.q)
     const ownerId = await resolveMe(client, args.owner_id as string | undefined)
     if (ownerId) query.owner_id = ownerId
 
