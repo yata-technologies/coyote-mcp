@@ -12,6 +12,11 @@ const output = join(ROOT, 'coyote.mcpb')
 console.log('Building TypeScript...')
 execSync('npm run build', { cwd: ROOT, stdio: 'inherit' })
 
+// Verify manifest.json "tools" array matches dist/tools/*.js. Without this
+// array Claude Desktop default-denies all tools on install (COY-157).
+console.log('Verifying manifest tools sync...')
+execSync(`"${process.execPath}" scripts/sync-manifest-tools.mjs --check`, { cwd: ROOT, stdio: 'inherit' })
+
 // Remove previous output if it exists
 try { rmSync(output) } catch { /* not present */ }
 

@@ -137,6 +137,7 @@ node dist/index.js login
 2. ツール定義（`inputSchema`）とハンドラ関数をエクスポート
 3. `src/index.ts` で import し、`ALL_TOOLS` と対応する Set に追加
 4. ハンドラ呼び出しを `CallToolRequestSchema` ハンドラ内の分岐に追加
+5. `npm run sync-manifest` を実行し `manifest.json` の `tools` 配列を更新してコミット（未同期だと `build:mcpb` が失敗する）。Claude Desktop は manifest の `tools` 配列を見てツールを認識する — 未宣言だと初回インストール時に全ツール「ブロック」となる（COY-157）
 
 ---
 
