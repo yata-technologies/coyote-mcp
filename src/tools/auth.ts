@@ -194,11 +194,20 @@ async function handleUpdate(): Promise<string> {
 }
 
 function openBrowser(url: string): void {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    return
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return
+  const safe = parsed.toString()
+
   const p = platform()
   try {
     const child = p === 'win32'
-      ? spawn('cmd', ['/c', 'start', '', url], { detached: true, stdio: 'ignore' })
-      : spawn(p === 'darwin' ? 'open' : 'xdg-open', [url], { detached: true, stdio: 'ignore' })
+      ? spawn('rundll32', ['url.dll,FileProtocolHandler', safe], { detached: true, stdio: 'ignore' })
+      : spawn(p === 'darwin' ? 'open' : 'xdg-open', [safe], { detached: true, stdio: 'ignore' })
     child.on('error', () => { /* ignore — user opens manually */ })
     child.unref()
   } catch { /* ignore — user opens manually */ }
