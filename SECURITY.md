@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in `coyote-mcp`, **please do not file a public GitHub issue.**
 
-Instead, report it privately via **[GitHub Security Advisories](https://github.com/Yata-Technologies/coyote-mcp/security/advisories/new)**. The maintainers (YATA Technologies) will receive the report directly and respond on the same channel.
+Instead, report it privately via **[GitHub Security Advisories](https://github.com/yata-technologies/coyote-mcp/security/advisories/new)**. The maintainers (YATA Technologies) will receive the report directly and respond on the same channel.
 
 ## What to include
 

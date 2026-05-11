@@ -34,7 +34,7 @@ You can clone to any directory. For example:
 
 ```bash
 cd ~/work
-git clone git@github.com:Yata-Technologies/coyote-mcp.git
+git clone git@github.com:yata-technologies/coyote-mcp.git
 ```
 
 ### 2. Run the install script
@@ -126,7 +126,7 @@ cd ~/work/coyote-mcp && git pull && npm run build
 
 ## Security
 
-Found a vulnerability? Please report it privately via [GitHub Security Advisories](https://github.com/Yata-Technologies/coyote-mcp/security/advisories/new) rather than opening a public issue. See [SECURITY.md](SECURITY.md) for details.
+Found a vulnerability? Please report it privately via [GitHub Security Advisories](https://github.com/yata-technologies/coyote-mcp/security/advisories/new) rather than opening a public issue. See [SECURITY.md](SECURITY.md) for details.
 
 ---
 

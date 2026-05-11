@@ -21,7 +21,7 @@
 
 **coyote-mcp** — Coyote ワークログ管理プラットフォーム向けの MCP（Model Context Protocol）サーバー。Claude Code から自然言語でワークログ記録・タスク参照・イシュー閲覧を可能にする。
 
-メインの Coyote リポジトリ（`github.com/Yata-Technologies/coyote`）から MCP コンポーネントを独立させたもの。コードの変更はこのリポジトリ単独で完結する。Coyote API との接続はすべて HTTP 経由。
+メインの Coyote リポジトリ（`github.com/yata-technologies/coyote`）から MCP コンポーネントを独立させたもの。コードの変更はこのリポジトリ単独で完結する。Coyote API との接続はすべて HTTP 経由。
 
 ---
 
@@ -221,7 +221,7 @@ DELETE /api/members/:id
 
 | 項目 | 値 |
 |---|---|
-| メインリポジトリ | `github.com/Yata-Technologies/coyote` |
+| メインリポジトリ | `github.com/yata-technologies/coyote` |
 | ローカルパス（開発者マシン） | `~/work/coyote` |
 | API（Worker）ソース | `~/work/coyote/worker/` |
 | フロントエンドソース | `~/work/coyote/src/` |
