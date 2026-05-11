@@ -120,3 +120,17 @@ cd ~/work/coyote-mcp && git pull && npm run build
 | `~/.coyote/token` | API token (`coy_xxx`) |
 | `~/.coyote/config.json` | Config (`auto_update` flag) |
 | `~/.claude.json` | MCP server registration for Claude Code |
+
+---
+
+## Security
+
+Found a vulnerability? Please report it privately via [GitHub Security Advisories](https://github.com/Yata-Technologies/coyote-mcp/security/advisories/new) rather than opening a public issue. See [SECURITY.md](SECURITY.md) for details.
+
+---
+
+## License and Trademarks
+
+Released under the MIT License — see [LICENSE](LICENSE).
+
+"Coyote" and "YATA Technologies" are trademarks of YATA Technologies. The MIT license covers the source code in this repository; it does not grant permission to use these names or logos in ways that suggest endorsement by, or affiliation with, YATA Technologies.

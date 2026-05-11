@@ -1,3 +1,6 @@
+// Copyright (c) 2026 YATA Technologies
+// SPDX-License-Identifier: MIT
+
 import { CoyoteClient } from '../lib/client.js'
 
 export const configTools = [

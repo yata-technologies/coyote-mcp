@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Copyright (c) 2026 YATA Technologies
+// SPDX-License-Identifier: MIT
+
 // Polyfill fetch for environments where it is not a global (e.g. Cowork's bundled Node.js < 18)
 if (typeof globalThis.fetch === 'undefined') {
   const { fetch, Headers, Request, Response } = await import('undici')

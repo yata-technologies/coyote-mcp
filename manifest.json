@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
