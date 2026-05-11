@@ -1,3 +1,6 @@
+// Copyright (c) 2026 YATA Technologies
+// SPDX-License-Identifier: MIT
+
 import { readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { homedir } from 'os'
 import { join } from 'path'

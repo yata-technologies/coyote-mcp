@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Copyright (c) 2026 YATA Technologies
+// SPDX-License-Identifier: MIT
+
 import { execSync } from 'child_process'
 import { readFileSync, rmSync } from 'fs'
 import { join, dirname } from 'path'

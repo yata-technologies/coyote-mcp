@@ -21,7 +21,7 @@
 
 **coyote-mcp** — Coyote ワークログ管理プラットフォーム向けの MCP（Model Context Protocol）サーバー。Claude Code から自然言語でワークログ記録・タスク参照・イシュー閲覧を可能にする。
 
-メインの Coyote リポジトリ（`github.com/Yata-Technologies/coyote`）から MCP コンポーネントを独立させたもの。コードの変更はこのリポジトリ単独で完結する。Coyote API との接続はすべて HTTP 経由。
+メインの Coyote リポジトリ（`github.com/yata-technologies/coyote`）から MCP コンポーネントを独立させたもの。コードの変更はこのリポジトリ単独で完結する。Coyote API との接続はすべて HTTP 経由。
 
 ---
 
@@ -113,12 +113,12 @@ node dist/index.js login
 
 ## バージョン管理
 
-バージョン管理は Kai（AI）が責任を持つ。Jay はこれらのファイルを直接編集しない。
+バージョン管理は Ren（AI）が責任を持つ。Jay はこれらのファイルを直接編集しない。
 
 | ファイル | 更新方法 |
 |---|---|
-| `package.json` | PR ごとに Kai が手動でインクリメント |
-| `manifest.json` | `package.json` と同じ値に Kai が同じ PR 内で更新 |
+| `package.json` | PR ごとに Ren が手動でインクリメント |
+| `manifest.json` | `package.json` と同じ値に Ren が同じ PR 内で更新 |
 | `src/index.ts` | `package.json` から動的読み込み — 更新不要 |
 
 **PR を作成する際は必ず `package.json` と `manifest.json` の両方を同じバージョンに更新すること。** バグ修正・機能追加・リファクタリングを問わず、パッチバージョン以上をインクリメントする。
@@ -222,7 +222,7 @@ DELETE /api/members/:id
 
 | 項目 | 値 |
 |---|---|
-| メインリポジトリ | `github.com/Yata-Technologies/coyote` |
+| メインリポジトリ | `github.com/yata-technologies/coyote` |
 | ローカルパス（開発者マシン） | `~/work/coyote` |
 | API（Worker）ソース | `~/work/coyote/worker/` |
 | フロントエンドソース | `~/work/coyote/src/` |

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 YATA Technologies
+// SPDX-License-Identifier: MIT
+
 import { spawn } from 'child_process'
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from 'fs'
 import { homedir, hostname, platform } from 'os'
