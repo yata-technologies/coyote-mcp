@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.9.1",
+  "version": "1.9.3",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
@@ -17,5 +17,255 @@
       "env": {}
     }
   },
+  "tools": [
+    {
+      "name": "coyote_login",
+      "description": "Start Coyote authentication. Opens a browser to the verification page and returns the code to enter there. After completing authentication in the browser, call coyote_login_complete."
+    },
+    {
+      "name": "coyote_login_complete",
+      "description": "Complete Coyote authentication after the user has approved the request in the browser. Call this after coyote_login once the browser authentication is done."
+    },
+    {
+      "name": "coyote_get_me",
+      "description": "Return the currently authenticated Coyote user."
+    },
+    {
+      "name": "coyote_update_me",
+      "description": "Update the current user's profile (name and/or title)."
+    },
+    {
+      "name": "coyote_upgrade",
+      "description": "Check for a new version of Coyote MCP and download it if available. Call this when any Coyote tool returns a 500 error, as that often indicates a version incompatibility between the MCP and the Coyote API."
+    },
+    {
+      "name": "coyote_list_issues",
+      "description": "List issues, optionally filtered by project, sprint, owner, status, or keyword."
+    },
+    {
+      "name": "coyote_get_issue",
+      "description": "Get full details of an issue by its slug (e.g. CHR-5)."
+    },
+    {
+      "name": "coyote_create_issue",
+      "description": "Create a new issue in a sprint."
+    },
+    {
+      "name": "coyote_update_issue",
+      "description": "Update an existing issue by slug."
+    },
+    {
+      "name": "coyote_delete_issue",
+      "description": "Delete an issue by slug. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_list_tasks",
+      "description": "List tasks, optionally filtered by owner, issue, project, sprint, status, or keyword."
+    },
+    {
+      "name": "coyote_get_task",
+      "description": "Get full details of a task by its slug (e.g. CHR-T1). Response includes associated activities and derived phases."
+    },
+    {
+      "name": "coyote_create_task",
+      "description": "Create a new task under an issue."
+    },
+    {
+      "name": "coyote_update_task",
+      "description": "Update an existing task by slug."
+    },
+    {
+      "name": "coyote_delete_task",
+      "description": "Delete a task by slug. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_list_worklogs",
+      "description": "List worklogs, optionally filtered by user, task, project, date range, or keyword."
+    },
+    {
+      "name": "coyote_get_worklog",
+      "description": "Get full details of a worklog by its slug (e.g. CHR-W3)."
+    },
+    {
+      "name": "coyote_create_worklog",
+      "description": "Record work time on a Coyote task."
+    },
+    {
+      "name": "coyote_update_worklog",
+      "description": "Update an existing worklog by slug."
+    },
+    {
+      "name": "coyote_delete_worklog",
+      "description": "Delete a worklog by slug. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_list_projects",
+      "description": "List all Coyote projects accessible to the current user."
+    },
+    {
+      "name": "coyote_list_members",
+      "description": "List members of a project."
+    },
+    {
+      "name": "coyote_get_project",
+      "description": "Get details of a single Coyote project by ID."
+    },
+    {
+      "name": "coyote_create_project",
+      "description": "Create a new project. Requires system admin role."
+    },
+    {
+      "name": "coyote_update_project",
+      "description": "Update a project. Requires system admin role."
+    },
+    {
+      "name": "coyote_delete_project",
+      "description": "Delete a project. Requires system admin role."
+    },
+    {
+      "name": "coyote_list_sprints",
+      "description": "List sprints for a project, optionally filtered by type."
+    },
+    {
+      "name": "coyote_create_sprint",
+      "description": "Create a new sprint. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_update_sprint",
+      "description": "Update an existing sprint. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_delete_sprint",
+      "description": "Delete a sprint. Requires project admin role."
+    },
+    {
+      "name": "coyote_get_sprint",
+      "description": "Get details of a single sprint by ID."
+    },
+    {
+      "name": "coyote_list_categories",
+      "description": "List categories for a project."
+    },
+    {
+      "name": "coyote_create_category",
+      "description": "Create a new category in a project. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_update_category",
+      "description": "Update a category. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_delete_category",
+      "description": "Delete a category. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_list_phases",
+      "description": "List phases for a project."
+    },
+    {
+      "name": "coyote_create_phase",
+      "description": "Create a new phase in a project. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_update_phase",
+      "description": "Update a phase. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_delete_phase",
+      "description": "Delete a phase. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_list_patterns",
+      "description": "List patterns, optionally filtered by category or level."
+    },
+    {
+      "name": "coyote_get_pattern",
+      "description": "Get full details of a pattern by ID."
+    },
+    {
+      "name": "coyote_create_pattern",
+      "description": "Create a new work pattern template."
+    },
+    {
+      "name": "coyote_update_pattern",
+      "description": "Update a pattern by ID."
+    },
+    {
+      "name": "coyote_delete_pattern",
+      "description": "Delete a pattern by ID."
+    },
+    {
+      "name": "coyote_list_activities",
+      "description": "List activities, optionally filtered by project, phase, or type."
+    },
+    {
+      "name": "coyote_create_activity",
+      "description": "Create a new activity. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_get_activity",
+      "description": "Get full details of an activity by ID."
+    },
+    {
+      "name": "coyote_update_activity",
+      "description": "Update an activity. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_delete_activity",
+      "description": "Delete an activity. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_add_member",
+      "description": "Add a user to a project. Requires project admin role."
+    },
+    {
+      "name": "coyote_update_member_role",
+      "description": "Change a project member's role. Requires project admin role."
+    },
+    {
+      "name": "coyote_remove_member",
+      "description": "Remove a user from a project. Requires project admin role."
+    },
+    {
+      "name": "coyote_list_vendors",
+      "description": "List all vendors. Useful for resolving vendor IDs when creating or filtering issues."
+    },
+    {
+      "name": "coyote_create_vendor",
+      "description": "Create a new vendor. Requires system admin role."
+    },
+    {
+      "name": "coyote_update_vendor",
+      "description": "Update a vendor. Requires system admin role."
+    },
+    {
+      "name": "coyote_delete_vendor",
+      "description": "Delete a vendor. Requires system admin role."
+    },
+    {
+      "name": "coyote_list_users",
+      "description": "List all users. Useful for resolving user IDs when assigning task owners or issue owners."
+    },
+    {
+      "name": "coyote_get_user",
+      "description": "Get details of a user by ID."
+    },
+    {
+      "name": "coyote_create_user",
+      "description": "Create a new user. Requires system admin role."
+    },
+    {
+      "name": "coyote_update_user",
+      "description": "Update a user. Requires system admin role."
+    },
+    {
+      "name": "coyote_deactivate_user",
+      "description": "Deactivate a user (sets active=0 and removes from all projects). Requires system admin role."
+    },
+    {
+      "name": "coyote_reactivate_user",
+      "description": "Reactivate a deactivated user (sets active=1). Requires system admin role."
+    }
+  ],
   "license": "MIT"
 }
