@@ -6,12 +6,13 @@ import { CoyoteClient } from '../lib/client.js'
 export const sprintTools = [
   {
     name: 'coyote_list_sprints',
-    description: 'List sprints for a project, optionally filtered by type.',
+    description: 'List sprints for a project, optionally filtered by type or keyword.',
     inputSchema: {
       type: 'object' as const,
       properties: {
         project_id:  { type: 'string', description: 'Project ID' },
         sprint_type: { type: 'string', description: 'Filter by type: sprint | backlog | release (optional)' },
+        q:           { type: 'string', description: 'Keyword search on sprint name (optional). Multiple words AND-combine. Quote phrases like "release 1". Prefix - to exclude. Case-insensitive substring match.' },
       },
       required: ['project_id'],
     },
@@ -81,6 +82,7 @@ export async function handleSprint(name: string, args: Record<string, string>): 
   if (name === 'coyote_list_sprints') {
     const query: Record<string, string> = { project_id: args.project_id }
     if (args.sprint_type) query.sprint_type = args.sprint_type
+    if (args.q)           query.q           = args.q
 
     const sprints = await client.get<Sprint[]>('/api/sprints', query)
     if (sprints.length === 0) return 'No sprints found.'

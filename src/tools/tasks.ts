@@ -50,6 +50,8 @@ export const taskTools = [
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: 'string', description: 'Pattern ID (optional). Use coyote_list_patterns to find IDs.' },
         category:     { type: 'string', description: 'Category name (optional, alternative to category_id)' },
+        start_date:   { type: 'string', description: 'Scheduled start date YYYY-MM-DD (optional)' },
+        end_date:     { type: 'string', description: 'Scheduled end date YYYY-MM-DD (optional). Must be on or after start_date.' },
       },
       required: ['issue_id', 'title'],
     },
@@ -73,6 +75,8 @@ export const taskTools = [
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: ['string', 'null'], description: 'Pattern ID; pass null to clear (optional). Use coyote_list_patterns to find IDs.' },
         category:     { type: ['string', 'null'], description: 'Category name; pass null to clear (optional)' },
+        start_date:   { type: ['string', 'null'], description: 'Scheduled start date YYYY-MM-DD; pass null to clear (optional)' },
+        end_date:     { type: ['string', 'null'], description: 'Scheduled end date YYYY-MM-DD; pass null to clear (optional). Must be on or after start_date.' },
       },
       required: ['slug'],
     },
@@ -155,6 +159,8 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.url)             body.url          = args.url
     if (args.pattern_id)      body.pattern_id   = args.pattern_id
     if (args.category)        body.category     = args.category
+    if (args.start_date)      body.start_date   = args.start_date
+    if (args.end_date)        body.end_date     = args.end_date
 
     const task = await client.post<Task>('/api/tasks', body)
     return `✅ Task created: ${task.slug ?? task.id} — ${task.title}`
@@ -175,6 +181,8 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.url          !== undefined) body.url          = args.url
     if (args.pattern_id   !== undefined) body.pattern_id   = args.pattern_id
     if (args.category     !== undefined) body.category     = args.category
+    if (args.start_date   !== undefined) body.start_date   = args.start_date
+    if (args.end_date     !== undefined) body.end_date     = args.end_date
 
     const task = await client.put<Task>(`/api/tasks/${args.slug}`, body)
     return `✅ Task updated: ${task.slug ?? task.id} — ${task.title} (status: ${task.status})`

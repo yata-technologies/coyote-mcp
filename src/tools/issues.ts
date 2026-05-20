@@ -46,6 +46,8 @@ export const issueTools = [
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: 'string', description: 'Related URL (optional)' },
+        start_date:  { type: 'string', description: 'Scheduled start date YYYY-MM-DD (optional)' },
+        end_date:    { type: 'string', description: 'Scheduled end date YYYY-MM-DD (optional). Must be on or after start_date.' },
       },
       required: ['sprint_id', 'title'],
     },
@@ -66,6 +68,8 @@ export const issueTools = [
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: ['string', 'null'], description: 'Related URL; pass null to clear (optional)' },
+        start_date:  { type: ['string', 'null'], description: 'Scheduled start date YYYY-MM-DD; pass null to clear (optional)' },
+        end_date:    { type: ['string', 'null'], description: 'Scheduled end date YYYY-MM-DD; pass null to clear (optional). Must be on or after start_date.' },
       },
       required: ['slug'],
     },
@@ -136,6 +140,8 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.level       !== undefined) body.level       = args.level
     if (args.description !== undefined) body.description = args.description
     if (args.url         !== undefined) body.url         = args.url
+    if (args.start_date  !== undefined) body.start_date  = args.start_date
+    if (args.end_date    !== undefined) body.end_date    = args.end_date
 
     const issue = await client.post<Issue>('/api/issues', body)
     return `✅ Issue created: ${issue.slug ?? issue.id} — ${issue.title}`
@@ -153,6 +159,8 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.level       !== undefined) body.level       = args.level
     if (args.description !== undefined) body.description = args.description
     if (args.url         !== undefined) body.url         = args.url
+    if (args.start_date  !== undefined) body.start_date  = args.start_date
+    if (args.end_date    !== undefined) body.end_date    = args.end_date
 
     const issue = await client.put<Issue>(`/api/issues/${args.slug}`, body)
     return `✅ Issue updated: ${issue.slug ?? issue.id} — ${issue.title} (status: ${issue.status})`
