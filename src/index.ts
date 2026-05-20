@@ -271,8 +271,8 @@ const SPRINT_TOOLS  = new Set(['coyote_list_sprints', 'coyote_create_sprint', 'c
 const USER_TOOLS    = new Set(['coyote_list_vendors', 'coyote_create_vendor', 'coyote_update_vendor', 'coyote_delete_vendor', 'coyote_list_users', 'coyote_get_user', 'coyote_create_user', 'coyote_update_user', 'coyote_deactivate_user', 'coyote_reactivate_user'])
 const CONFIG_TOOLS  = new Set([
   'coyote_list_patterns', 'coyote_get_pattern', 'coyote_create_pattern', 'coyote_update_pattern', 'coyote_delete_pattern',
-  'coyote_list_categories', 'coyote_create_category', 'coyote_update_category', 'coyote_delete_category',
-  'coyote_list_phases', 'coyote_create_phase', 'coyote_update_phase', 'coyote_delete_phase',
+  'coyote_list_categories', 'coyote_create_category', 'coyote_update_category', 'coyote_reorder_categories', 'coyote_delete_category',
+  'coyote_list_phases', 'coyote_create_phase', 'coyote_update_phase', 'coyote_reorder_phases', 'coyote_delete_phase',
   'coyote_list_activities', 'coyote_get_activity', 'coyote_create_activity', 'coyote_update_activity', 'coyote_delete_activity',
 ])
 const MEMBER_TOOLS  = new Set(['coyote_add_member', 'coyote_update_member_role', 'coyote_remove_member'])
@@ -308,7 +308,7 @@ async function startServer(): Promise<void> {
       } else if (SPRINT_TOOLS.has(name)) {
         text = await handleSprint(name, a as Record<string, string>)
       } else if (CONFIG_TOOLS.has(name)) {
-        text = await handleConfig(name, a)
+        text = await handleConfig(name, a as Record<string, string | number | string[] | null>)
       } else if (MEMBER_TOOLS.has(name)) {
         text = await handleMember(name, a as Record<string, string>)
       } else if (USER_TOOLS.has(name)) {

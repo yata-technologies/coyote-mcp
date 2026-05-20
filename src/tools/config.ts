@@ -24,6 +24,7 @@ export const configTools = [
       properties: {
         project_id: { type: 'string', description: 'Project ID' },
         name:       { type: 'string', description: 'Category name' },
+        sort_order: { type: 'number', description: 'Sort order; lower values appear first (optional)' },
       },
       required: ['project_id', 'name'],
     },
@@ -34,11 +35,24 @@ export const configTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        id:        { type: 'string', description: 'Category ID' },
-        name:      { type: 'string', description: 'Category name (optional)' },
-        is_active: { type: 'number', description: '1 = active, 0 = inactive (optional)' },
+        id:         { type: 'string', description: 'Category ID' },
+        name:       { type: 'string', description: 'Category name (optional)' },
+        sort_order: { type: 'number', description: 'Sort order; lower values appear first (optional)' },
+        is_active:  { type: 'number', description: '1 = active, 0 = inactive (optional)' },
       },
       required: ['id'],
+    },
+  },
+  {
+    name: 'coyote_reorder_categories',
+    description: 'Reorder all categories within a project. Pass the category IDs in the desired order. Requires project admin or manager role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        project_id: { type: 'string', description: 'Project ID' },
+        ids:        { type: 'array', items: { type: 'string' }, description: 'Category IDs in the desired order' },
+      },
+      required: ['project_id', 'ids'],
     },
   },
   {
@@ -72,6 +86,7 @@ export const configTools = [
       properties: {
         project_id: { type: 'string', description: 'Project ID' },
         name:       { type: 'string', description: 'Phase name' },
+        sort_order: { type: 'number', description: 'Sort order; lower values appear first (optional)' },
       },
       required: ['project_id', 'name'],
     },
@@ -82,11 +97,24 @@ export const configTools = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        id:        { type: 'string', description: 'Phase ID' },
-        name:      { type: 'string', description: 'Phase name (optional)' },
-        is_active: { type: 'number', description: '1 = active, 0 = inactive (optional)' },
+        id:         { type: 'string', description: 'Phase ID' },
+        name:       { type: 'string', description: 'Phase name (optional)' },
+        sort_order: { type: 'number', description: 'Sort order; lower values appear first (optional)' },
+        is_active:  { type: 'number', description: '1 = active, 0 = inactive (optional)' },
       },
       required: ['id'],
+    },
+  },
+  {
+    name: 'coyote_reorder_phases',
+    description: 'Reorder all phases within a project. Pass the phase IDs in the desired order. Requires project admin or manager role.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        project_id: { type: 'string', description: 'Project ID' },
+        ids:        { type: 'array', items: { type: 'string' }, description: 'Phase IDs in the desired order' },
+      },
+      required: ['project_id', 'ids'],
     },
   },
   {
@@ -241,7 +269,7 @@ type Phase     = { id: string; name: string; sort_order: number; is_active: numb
 type Activity  = { id: string; name: string; phase: string | null; role: string | null; type: string | null; phase_id: string | null }
 type Pattern   = { id: string; pattern: string; pattern_ja?: string | null; category?: string | null; level?: string | null; description?: string | null; sample_url?: string | null }
 
-export async function handleConfig(name: string, args: Record<string, string | number | null>): Promise<string> {
+export async function handleConfig(name: string, args: Record<string, string | number | string[] | null>): Promise<string> {
   const client = new CoyoteClient()
 
   // Patterns
@@ -297,16 +325,24 @@ export async function handleConfig(name: string, args: Record<string, string | n
   }
 
   if (name === 'coyote_create_category') {
-    const item = await client.post<Category>('/api/categories', { project_id: args.project_id, name: args.name })
+    const body: Record<string, unknown> = { project_id: args.project_id, name: args.name }
+    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
+    const item = await client.post<Category>('/api/categories', body)
     return `✅ Category created: [${item.id}] ${item.name}`
   }
 
   if (name === 'coyote_update_category') {
     const body: Record<string, unknown> = {}
-    if (args.name      !== undefined) body.name      = args.name
-    if (args.is_active !== undefined) body.is_active = Number(args.is_active)
+    if (args.name       !== undefined) body.name       = args.name
+    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
+    if (args.is_active  !== undefined) body.is_active  = Number(args.is_active)
     const item = await client.put<Category>(`/api/categories/${args.id}`, body)
     return `✅ Category updated: [${item.id}] ${item.name}`
+  }
+
+  if (name === 'coyote_reorder_categories') {
+    await client.patch('/api/categories/reorder', { project_id: args.project_id, ids: args.ids })
+    return `✅ Categories reordered (${(args.ids as unknown as string[]).length} items)`
   }
 
   if (name === 'coyote_delete_category') {
@@ -322,16 +358,24 @@ export async function handleConfig(name: string, args: Record<string, string | n
   }
 
   if (name === 'coyote_create_phase') {
-    const item = await client.post<Phase>('/api/phases', { project_id: args.project_id, name: args.name })
+    const body: Record<string, unknown> = { project_id: args.project_id, name: args.name }
+    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
+    const item = await client.post<Phase>('/api/phases', body)
     return `✅ Phase created: [${item.id}] ${item.name}`
   }
 
   if (name === 'coyote_update_phase') {
     const body: Record<string, unknown> = {}
-    if (args.name      !== undefined) body.name      = args.name
-    if (args.is_active !== undefined) body.is_active = Number(args.is_active)
+    if (args.name       !== undefined) body.name       = args.name
+    if (args.sort_order !== undefined) body.sort_order = Number(args.sort_order)
+    if (args.is_active  !== undefined) body.is_active  = Number(args.is_active)
     const item = await client.put<Phase>(`/api/phases/${args.id}`, body)
     return `✅ Phase updated: [${item.id}] ${item.name}`
+  }
+
+  if (name === 'coyote_reorder_phases') {
+    await client.patch('/api/phases/reorder', { project_id: args.project_id, ids: args.ids })
+    return `✅ Phases reordered (${(args.ids as unknown as string[]).length} items)`
   }
 
   if (name === 'coyote_delete_phase') {

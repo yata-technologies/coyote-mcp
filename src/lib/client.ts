@@ -62,6 +62,16 @@ export class CoyoteClient {
     return res.json() as Promise<T>
   }
 
+  async patch<T = void>(path: string, body: unknown): Promise<T> {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      method: 'PATCH',
+      headers: this.headers(),
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) await this.throwOnError(res)
+    return res.json() as Promise<T>
+  }
+
   async delete(path: string): Promise<void> {
     const res = await fetch(`${BASE_URL}${path}`, {
       method: 'DELETE',

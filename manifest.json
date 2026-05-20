@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.9.5",
+  "version": "1.10.0",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
@@ -124,7 +124,7 @@
     },
     {
       "name": "coyote_list_sprints",
-      "description": "List sprints for a project, optionally filtered by type."
+      "description": "List sprints for a project, optionally filtered by type or keyword."
     },
     {
       "name": "coyote_create_sprint",
@@ -155,6 +155,10 @@
       "description": "Update a category. Requires project admin or manager role."
     },
     {
+      "name": "coyote_reorder_categories",
+      "description": "Reorder all categories within a project. Pass the category IDs in the desired order. Requires project admin or manager role."
+    },
+    {
       "name": "coyote_delete_category",
       "description": "Delete a category. Requires project admin or manager role."
     },
@@ -169,6 +173,10 @@
     {
       "name": "coyote_update_phase",
       "description": "Update a phase. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_reorder_phases",
+      "description": "Reorder all phases within a project. Pass the phase IDs in the desired order. Requires project admin or manager role."
     },
     {
       "name": "coyote_delete_phase",
