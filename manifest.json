@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
@@ -257,10 +257,6 @@
     {
       "name": "coyote_get_user",
       "description": "Get details of a user by ID."
-    },
-    {
-      "name": "coyote_create_user",
-      "description": "Create a new user. Requires system admin role."
     },
     {
       "name": "coyote_update_user",

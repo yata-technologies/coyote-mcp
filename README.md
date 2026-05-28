@@ -109,7 +109,7 @@ cd ~/work/coyote-mcp && git pull && npm run build
 | Categories | `coyote_list_categories`, `coyote_create_category`, `coyote_update_category`, `coyote_delete_category` |
 | Phases | `coyote_list_phases`, `coyote_create_phase`, `coyote_update_phase`, `coyote_delete_phase` |
 | Activities | `coyote_list_activities`, `coyote_get_activity`, `coyote_create_activity`, `coyote_update_activity`, `coyote_delete_activity` |
-| Users | `coyote_list_users`, `coyote_get_user`, `coyote_create_user`, `coyote_update_user`, `coyote_deactivate_user`, `coyote_reactivate_user` |
+| Users | `coyote_list_users`, `coyote_get_user`, `coyote_update_user`, `coyote_deactivate_user`, `coyote_reactivate_user` (new users are added via the invitation flow in the web app) |
 | Vendors | `coyote_list_vendors`, `coyote_create_vendor`, `coyote_update_vendor`, `coyote_delete_vendor` |
 
 ---

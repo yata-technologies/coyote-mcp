@@ -65,21 +65,6 @@ export const userTools = [
     },
   },
   {
-    name: 'coyote_create_user',
-    description: 'Create a new user. Requires system admin role.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        name:        { type: 'string', description: 'User name' },
-        email:       { type: 'string', description: 'User email' },
-        system_role: { type: 'string', description: 'System role: admin | member (default: member)' },
-        title:       { type: 'string', description: 'Job title (optional)' },
-        vendor_id:   { type: 'string', description: 'Vendor ID (optional)' },
-      },
-      required: ['name', 'email'],
-    },
-  },
-  {
     name: 'coyote_update_user',
     description: 'Update a user. Requires system admin role.',
     inputSchema: {
@@ -165,15 +150,6 @@ export async function handleUser(name: string, args: Record<string, unknown>): P
   if (name === 'coyote_get_user') {
     const user = await client.get<User>(`/api/users/${args.id}`)
     return JSON.stringify(user, null, 2)
-  }
-
-  if (name === 'coyote_create_user') {
-    const body: Record<string, unknown> = { name: args.name, email: args.email }
-    if (args.system_role) body.system_role = args.system_role
-    if (args.title)       body.title       = args.title
-    if (args.vendor_id)   body.vendor_id   = args.vendor_id
-    const user = await client.post<User>('/api/users', body)
-    return `✅ User created: [${user.id}] ${user.name} (${user.email}) — ${user.system_role}`
   }
 
   if (name === 'coyote_update_user') {
