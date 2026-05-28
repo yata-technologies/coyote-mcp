@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
@@ -84,15 +84,15 @@
     },
     {
       "name": "coyote_get_worklog",
-      "description": "Get full details of a worklog by its slug (e.g. CHR-W3)."
+      "description": "Get full details of a worklog by its slug (e.g. CHR-W3). Times are returned in the caller's local TZ."
     },
     {
       "name": "coyote_create_worklog",
-      "description": "Record work time on a Coyote task."
+      "description": "Record work time on a Coyote task. `date` / `start_time` / `end_time` are interpreted as the caller's local time and stored as UTC alongside the recorder's offset."
     },
     {
       "name": "coyote_update_worklog",
-      "description": "Update an existing worklog by slug."
+      "description": "Update an existing worklog by slug. When `date` / `start_time` / `end_time` are provided they are interpreted as local time and converted to UTC. If any of those are touched, the worklog is normalized to UTC storage even if it was a legacy row."
     },
     {
       "name": "coyote_delete_worklog",
