@@ -268,7 +268,7 @@ const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_c
 const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
 const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_members', 'coyote_get_project', 'coyote_create_project', 'coyote_update_project', 'coyote_delete_project'])
 const SPRINT_TOOLS  = new Set(['coyote_list_sprints', 'coyote_create_sprint', 'coyote_update_sprint', 'coyote_delete_sprint', 'coyote_get_sprint'])
-const USER_TOOLS    = new Set(['coyote_list_vendors', 'coyote_create_vendor', 'coyote_update_vendor', 'coyote_delete_vendor', 'coyote_list_users', 'coyote_get_user', 'coyote_create_user', 'coyote_update_user', 'coyote_deactivate_user', 'coyote_reactivate_user'])
+const USER_TOOLS    = new Set(['coyote_list_vendors', 'coyote_create_vendor', 'coyote_update_vendor', 'coyote_delete_vendor', 'coyote_list_users', 'coyote_get_user', 'coyote_update_user', 'coyote_deactivate_user', 'coyote_reactivate_user'])
 const CONFIG_TOOLS  = new Set([
   'coyote_list_patterns', 'coyote_get_pattern', 'coyote_create_pattern', 'coyote_update_pattern', 'coyote_delete_pattern',
   'coyote_list_categories', 'coyote_create_category', 'coyote_update_category', 'coyote_reorder_categories', 'coyote_delete_category',
