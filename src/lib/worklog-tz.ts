@@ -88,9 +88,5 @@ export function todayLocal(): string {
   const d = new Date()
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 }
-
-// "Now" in the server's local TZ as HH:MM:SS.
-export function nowLocalHMS(): string {
-  const d = new Date()
-  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`
-}
+// Note: there is intentionally no "now"-as-start_time helper. Worklog start
+// must be the actual work start, never the submission clock time (COY-206).

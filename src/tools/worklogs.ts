@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { CoyoteClient } from '../lib/client.js'
-import { localToUtc, utcToLocal, todayLocal, nowLocalHMS } from '../lib/worklog-tz.js'
+import { localToUtc, utcToLocal, todayLocal } from '../lib/worklog-tz.js'
 
 export const worklogTools = [
   {
@@ -35,7 +35,7 @@ export const worklogTools = [
   },
   {
     name: 'coyote_create_worklog',
-    description: 'Record work time on a Coyote task. `date` / `start_time` / `end_time` are interpreted as the caller\'s local time and stored as UTC alongside the recorder\'s offset.',
+    description: 'Record work time on a Coyote task. `date` / `start_time` / `end_time` are interpreted as the caller\'s local time and stored as UTC alongside the recorder\'s offset. `start_time` is required and must be the actual work start — the MCP does not default it to the current clock.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -43,7 +43,7 @@ export const worklogTools = [
         owner_id:    { type: 'string', description: 'Owner user ID, or "me" for current user (defaults to "me")' },
         seconds:     { type: 'number', description: 'Time spent in seconds' },
         date:        { type: 'string', description: 'YYYY-MM-DD in caller\'s local TZ, defaults to today (local)' },
-        start_time:  { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'HH:MM or HH:MM:SS in caller\'s local TZ, defaults to now (local)' },
+        start_time:  { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'Required. HH:MM or HH:MM:SS in caller\'s local TZ — the actual work start. No default: the MCP will not fall back to the current clock. In a Coyote Tracker session, use the canonical value the pre-worklog hook reports.' },
         end_time:    { type: 'string', pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?$', description: 'HH:MM or HH:MM:SS in caller\'s local TZ (optional)' },
         description:        { type: 'string', description: 'Work description' },
         activity_id:        { type: 'string', description: 'Activity ID (optional)' },
@@ -51,7 +51,7 @@ export const worklogTools = [
         time_human_seconds: { type: 'number', description: 'Human work time in seconds (optional). If provided with time_ai_seconds, they should sum to total seconds.' },
         time_ai_seconds:    { type: 'number', description: 'AI work time in seconds (optional). If provided with time_human_seconds, they should sum to total seconds.' },
       },
-      required: ['task_slug', 'seconds', 'description'],
+      required: ['task_slug', 'seconds', 'description', 'start_time'],
     },
   },
   {
@@ -195,7 +195,18 @@ export async function handleWorklog(name: string, args: Record<string, string | 
         : Promise.resolve(ownerRaw),
     ])
     const localDate  = (args.date as string | undefined)       ?? todayLocal()
-    const localStart = (args.start_time as string | undefined) ?? nowLocalHMS()
+    // start_time is required and intentionally has no fallback. Defaulting to
+    // the current clock (the old behavior) silently stamped the worklog at
+    // submission time rather than when the work actually happened (COY-206).
+    const localStart = (args.start_time as string | undefined)?.trim()
+    if (!localStart) {
+      throw new Error(
+        'start_time is required (HH:MM or HH:MM:SS, caller local TZ). The MCP no longer '
+        + 'defaults to the current clock, which mis-stamped the worklog at submission time '
+        + 'instead of when the work happened. Pass the actual work start — in a Coyote '
+        + 'Tracker session the pre-worklog hook reports the canonical value to use verbatim.'
+      )
+    }
     const localEnd   = (args.end_time as string | undefined)   ?? null
 
     const utc = localToUtc({ date: localDate, start_time: localStart, end_time: localEnd })
