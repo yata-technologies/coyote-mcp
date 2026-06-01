@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
@@ -48,7 +48,7 @@
     },
     {
       "name": "coyote_create_issue",
-      "description": "Create a new issue in a sprint."
+      "description": "Create a new issue in a sprint. Strongly prefer setting start_date and end_date — they place the issue on the Timeline/Gantt view. If you omit both, they default to the parent sprint's dates."
     },
     {
       "name": "coyote_update_issue",
@@ -68,7 +68,7 @@
     },
     {
       "name": "coyote_create_task",
-      "description": "Create a new task under an issue."
+      "description": "Create a new task under an issue. Strongly prefer setting start_date and end_date — they place the task on the Timeline/Gantt view. If you omit both, they default to the parent issue's dates."
     },
     {
       "name": "coyote_update_task",

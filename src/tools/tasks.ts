@@ -33,7 +33,7 @@ export const taskTools = [
   },
   {
     name: 'coyote_create_task',
-    description: 'Create a new task under an issue.',
+    description: 'Create a new task under an issue. Strongly prefer setting start_date and end_date — they place the task on the Timeline/Gantt view. If you omit both, they default to the parent issue\'s dates.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -50,8 +50,8 @@ export const taskTools = [
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: 'string', description: 'Pattern ID (optional). Use coyote_list_patterns to find IDs.' },
         category:     { type: 'string', description: 'Category name (optional, alternative to category_id)' },
-        start_date:   { type: 'string', description: 'Scheduled start date YYYY-MM-DD (optional)' },
-        end_date:     { type: 'string', description: 'Scheduled end date YYYY-MM-DD (optional). Must be on or after start_date.' },
+        start_date:   { type: 'string', description: 'Scheduled start date YYYY-MM-DD. STRONGLY RECOMMENDED: a task without both start_date and end_date does NOT appear on the Timeline/Gantt view. Ask the user if unknown rather than leaving blank. If you omit both dates they default to the parent issue\'s start_date.' },
+        end_date:     { type: 'string', description: 'Scheduled end date YYYY-MM-DD. Must be on or after start_date. STRONGLY RECOMMENDED for the Timeline/Gantt view (see start_date). If you omit both dates they default to the parent issue\'s end_date.' },
       },
       required: ['issue_id', 'title'],
     },
@@ -75,8 +75,8 @@ export const taskTools = [
         weight:       { type: 'number', description: 'Effort weight (optional)' },
         pattern_id:   { type: ['string', 'null'], description: 'Pattern ID; pass null to clear (optional). Use coyote_list_patterns to find IDs.' },
         category:     { type: ['string', 'null'], description: 'Category name; pass null to clear (optional)' },
-        start_date:   { type: ['string', 'null'], description: 'Scheduled start date YYYY-MM-DD; pass null to clear (optional)' },
-        end_date:     { type: ['string', 'null'], description: 'Scheduled end date YYYY-MM-DD; pass null to clear (optional). Must be on or after start_date.' },
+        start_date:   { type: ['string', 'null'], description: 'Scheduled start date YYYY-MM-DD; pass null to clear. Needed together with end_date for the task to appear on the Timeline/Gantt view.' },
+        end_date:     { type: ['string', 'null'], description: 'Scheduled end date YYYY-MM-DD; pass null to clear. Must be on or after start_date. Needed together with start_date for the Timeline/Gantt view.' },
       },
       required: ['slug'],
     },
@@ -97,6 +97,7 @@ export const taskTools = [
 type Task = {
   id: string; slug: string | null; title: string; status: string
   owner_id: string | null; phase: string | null; priority: string | null; weight: number
+  start_date: string | null; end_date: string | null
 }
 
 async function resolveMe(client: CoyoteClient, value: string | undefined): Promise<string | undefined> {
@@ -163,7 +164,10 @@ export async function handleTask(name: string, args: Record<string, string | num
     if (args.end_date)        body.end_date     = args.end_date
 
     const task = await client.post<Task>('/api/tasks', body)
-    return `✅ Task created: ${task.slug ?? task.id} — ${task.title}`
+    const dateWarning = (task.start_date && task.end_date)
+      ? ''
+      : '\n⚠️ This task has no start_date/end_date (its issue had none to inherit), so it will NOT appear on the Timeline/Gantt view. Consider setting both with coyote_update_task.'
+    return `✅ Task created: ${task.slug ?? task.id} — ${task.title}${dateWarning}`
   }
 
   if (name === 'coyote_update_task') {
