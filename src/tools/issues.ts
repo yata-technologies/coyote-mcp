@@ -33,7 +33,7 @@ export const issueTools = [
   },
   {
     name: 'coyote_create_issue',
-    description: 'Create a new issue in a sprint.',
+    description: 'Create a new issue in a sprint. Strongly prefer setting start_date and end_date — they place the issue on the Timeline/Gantt view. If you omit both, they default to the parent sprint\'s dates.',
     inputSchema: {
       type: 'object' as const,
       properties: {
@@ -46,8 +46,8 @@ export const issueTools = [
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: 'string', description: 'Related URL (optional)' },
-        start_date:  { type: 'string', description: 'Scheduled start date YYYY-MM-DD (optional)' },
-        end_date:    { type: 'string', description: 'Scheduled end date YYYY-MM-DD (optional). Must be on or after start_date.' },
+        start_date:  { type: 'string', description: 'Scheduled start date YYYY-MM-DD. STRONGLY RECOMMENDED: an issue without both start_date and end_date does NOT appear on the Timeline/Gantt view. Ask the user if unknown rather than leaving blank. If you omit both dates they default to the parent sprint\'s start_date.' },
+        end_date:    { type: 'string', description: 'Scheduled end date YYYY-MM-DD. Must be on or after start_date. STRONGLY RECOMMENDED for the Timeline/Gantt view (see start_date). If you omit both dates they default to the parent sprint\'s end_date.' },
       },
       required: ['sprint_id', 'title'],
     },
@@ -68,8 +68,8 @@ export const issueTools = [
         level:       { type: 'string', description: 'Level (optional)' },
         description: { type: 'string', description: 'Description (optional)' },
         url:         { type: ['string', 'null'], description: 'Related URL; pass null to clear (optional)' },
-        start_date:  { type: ['string', 'null'], description: 'Scheduled start date YYYY-MM-DD; pass null to clear (optional)' },
-        end_date:    { type: ['string', 'null'], description: 'Scheduled end date YYYY-MM-DD; pass null to clear (optional). Must be on or after start_date.' },
+        start_date:  { type: ['string', 'null'], description: 'Scheduled start date YYYY-MM-DD; pass null to clear. Needed together with end_date for the issue to appear on the Timeline/Gantt view.' },
+        end_date:    { type: ['string', 'null'], description: 'Scheduled end date YYYY-MM-DD; pass null to clear. Must be on or after start_date. Needed together with start_date for the Timeline/Gantt view.' },
       },
       required: ['slug'],
     },
@@ -90,6 +90,7 @@ export const issueTools = [
 type Issue = {
   id: string; slug: string | null; title: string; status: string
   priority: string | null; owner_id: string | null; vendor: string | null
+  start_date: string | null; end_date: string | null
 }
 
 async function resolveMe(client: CoyoteClient, value: string | undefined): Promise<string | undefined> {
@@ -144,7 +145,10 @@ export async function handleIssue(name: string, args: Record<string, string | nu
     if (args.end_date    !== undefined) body.end_date    = args.end_date
 
     const issue = await client.post<Issue>('/api/issues', body)
-    return `✅ Issue created: ${issue.slug ?? issue.id} — ${issue.title}`
+    const dateWarning = (issue.start_date && issue.end_date)
+      ? ''
+      : '\n⚠️ This issue has no start_date/end_date (its sprint had none to inherit), so it will NOT appear on the Timeline/Gantt view. Consider setting both with coyote_update_issue.'
+    return `✅ Issue created: ${issue.slug ?? issue.id} — ${issue.title}${dateWarning}`
   }
 
   if (name === 'coyote_update_issue') {
