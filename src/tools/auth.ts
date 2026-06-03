@@ -3,16 +3,19 @@
 
 import { spawn } from 'child_process'
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from 'fs'
-import { homedir, hostname, platform } from 'os'
+import { homedir, platform } from 'os'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
 import { writeToken, readToken } from '../lib/token.js'
 import { CoyoteClient } from '../lib/client.js'
+import { editionLabel } from '../lib/edition.js'
 
 const BASE_URL = 'https://api.coyote-worklog.com'
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const IS_GIT_REPO = existsSync(join(__dirname, '..', '.git'))
+// auth.js compiles to dist/tools/, so the repo root (and its .git) is two
+// levels up — must match the ../../package.json depth used for VERSION below.
+const IS_GIT_REPO = existsSync(join(__dirname, '..', '..', '.git'))
 const PENDING_AUTH_FILE = join(homedir(), '.coyote', 'pending-auth.json')
 const VERSION: string = (createRequire(import.meta.url)('../../package.json') as { version: string }).version
 
@@ -231,7 +234,7 @@ function clearPendingAuth(): void {
 }
 
 async function startDeviceAuth(): Promise<string> {
-  const label = `Coyote MCP on ${hostname()} (${platform()})`
+  const label = editionLabel(IS_GIT_REPO)
 
   const res = await fetch(`${BASE_URL}/auth/device/code`, {
     method: 'POST',
