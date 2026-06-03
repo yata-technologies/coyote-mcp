@@ -12,7 +12,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { execSync, spawnSync } from 'child_process'
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from 'fs'
-import { homedir, hostname, platform } from 'os'
+import { homedir } from 'os'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -27,6 +27,7 @@ import { memberTools, handleMember } from './tools/members.js'
 import { userTools, handleUser } from './tools/users.js'
 import { createRequire } from 'module'
 import { writeToken } from './lib/token.js'
+import { editionLabel } from './lib/edition.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_DIR = join(__dirname, '..')
@@ -206,7 +207,7 @@ function tryAutoUpdate(): void {
 // --- CLI login mode ---
 
 async function runLogin(): Promise<void> {
-  const label = `Claude Code on ${hostname()} (${platform()})`
+  const label = editionLabel(IS_GIT_REPO)
 
   console.log('🐺 Coyote — Device Authorization\n')
 
