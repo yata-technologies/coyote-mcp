@@ -63,6 +63,7 @@ export const taskTools = [
       type: 'object' as const,
       properties: {
         slug:         { type: 'string', description: 'Task slug, e.g. CHR-T1' },
+        issue_id:     { type: 'string', description: 'Issue slug (e.g. POY-10) or UUID to re-parent the task under. Must be in the same project — a cross-project issue_id returns a 400 error (optional).' },
         title:        { type: 'string', description: 'Task title (optional)' },
         owner_id:     { type: ['string', 'null'], description: 'Owner user ID, or "me"; pass null to unassign (optional)' },
         reviewer_id:  { type: ['string', 'null'], description: 'Reviewer user ID; pass null to clear (optional)' },
@@ -173,6 +174,7 @@ export async function handleTask(name: string, args: Record<string, string | num
   if (name === 'coyote_update_task') {
     const ownerId    = await resolveMe(client, args.owner_id as string | undefined)
     const body: Record<string, unknown> = {}
+    if (args.issue_id     !== undefined) body.issue_id     = await resolveIssueId(client, String(args.issue_id))
     if (args.title        !== undefined) body.title        = args.title
     if (ownerId           !== undefined) body.owner_id     = ownerId ?? null
     if (args.reviewer_id  !== undefined) body.reviewer_id  = args.reviewer_id
