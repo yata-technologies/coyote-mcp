@@ -23,6 +23,7 @@ const modules = [
   ['auth',     'authTools'],
   ['issues',   'issueTools'],
   ['tasks',    'taskTools'],
+  ['comments', 'commentTools'],
   ['worklogs', 'worklogTools'],
   ['projects', 'projectTools'],
   ['sprints',  'sprintTools'],
