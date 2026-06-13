@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "coyote",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "Worklog and task management MCP server for Coyote — log work, query tasks, and manage issues directly from Claude.",
   "author": {
     "name": "YATA Technologies"
@@ -77,6 +77,22 @@
     {
       "name": "coyote_delete_task",
       "description": "Delete a task by slug. Requires project admin or manager role."
+    },
+    {
+      "name": "coyote_list_comments",
+      "description": "List the comment thread for a single Issue or Task (flat, chronological). Any project member may read."
+    },
+    {
+      "name": "coyote_create_comment",
+      "description": "Add a comment to an Issue or Task. Any project member. The author is the authenticated user."
+    },
+    {
+      "name": "coyote_update_comment",
+      "description": "Edit a comment body. Owner-or-manager only. Backlog-sourced comments are read-only."
+    },
+    {
+      "name": "coyote_delete_comment",
+      "description": "Delete a comment. Owner-or-manager only. Backlog-sourced comments are read-only."
     },
     {
       "name": "coyote_list_worklogs",

@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url'
 import { authTools, handleAuth } from './tools/auth.js'
 import { taskTools, handleTask } from './tools/tasks.js'
 import { issueTools, handleIssue } from './tools/issues.js'
+import { commentTools, handleComment } from './tools/comments.js'
 import { worklogTools, handleWorklog } from './tools/worklogs.js'
 import { projectTools, handleProject } from './tools/projects.js'
 import { sprintTools, handleSprint } from './tools/sprints.js'
@@ -261,11 +262,12 @@ function sleep(ms: number): Promise<void> {
 
 // --- MCP Server ---
 
-const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools, ...memberTools, ...userTools]
+const ALL_TOOLS = [...authTools, ...issueTools, ...taskTools, ...commentTools, ...worklogTools, ...projectTools, ...sprintTools, ...configTools, ...memberTools, ...userTools]
 
 const AUTH_TOOLS    = new Set(['coyote_login', 'coyote_login_complete', 'coyote_get_me', 'coyote_update_me', 'coyote_upgrade'])
 const ISSUE_TOOLS   = new Set(['coyote_list_issues', 'coyote_get_issue', 'coyote_create_issue', 'coyote_update_issue', 'coyote_delete_issue'])
 const TASK_TOOLS    = new Set(['coyote_list_tasks', 'coyote_get_task', 'coyote_create_task', 'coyote_update_task', 'coyote_delete_task'])
+const COMMENT_TOOLS = new Set(['coyote_list_comments', 'coyote_create_comment', 'coyote_update_comment', 'coyote_delete_comment'])
 const WORKLOG_TOOLS = new Set(['coyote_list_worklogs', 'coyote_get_worklog', 'coyote_create_worklog', 'coyote_update_worklog', 'coyote_delete_worklog'])
 const PROJECT_TOOLS = new Set(['coyote_list_projects', 'coyote_list_members', 'coyote_get_project', 'coyote_create_project', 'coyote_update_project', 'coyote_delete_project'])
 const SPRINT_TOOLS  = new Set(['coyote_list_sprints', 'coyote_create_sprint', 'coyote_update_sprint', 'coyote_delete_sprint', 'coyote_get_sprint'])
@@ -302,6 +304,8 @@ async function startServer(): Promise<void> {
         text = await handleIssue(name, a)
       } else if (TASK_TOOLS.has(name)) {
         text = await handleTask(name, a)
+      } else if (COMMENT_TOOLS.has(name)) {
+        text = await handleComment(name, a as Record<string, string>)
       } else if (WORKLOG_TOOLS.has(name)) {
         text = await handleWorklog(name, a)
       } else if (PROJECT_TOOLS.has(name)) {
